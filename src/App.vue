@@ -4,3 +4,8 @@
   </div>
   <router-view />
 </template>
+
+<style lang="scss">
+@import 'style/reset.css';
+@import 'style/common.scss';
+</style>

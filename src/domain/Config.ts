@@ -1,5 +1,6 @@
 export interface Config {
   uuid: string;
+  name: string;
   serverIp: string;
   username: string;
   sshPrivateKeyPath: string;

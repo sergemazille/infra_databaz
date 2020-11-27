@@ -8,9 +8,9 @@ export const fetchConfigs = () => {
 export const saveConfig = (configToSave: Config): Promise<void> => {
   return new Promise(resolve => {
     const rawConfigs = fetchConfigs() || '';
-    const configs = JSON.parse(rawConfigs) as Configs;
+    const configs = rawConfigs ? (JSON.parse(rawConfigs) as Configs) : ([] as Configs);
 
-    configToSave.uuid = uuid();
+    configToSave.uuid = configToSave.uuid ?? uuid();
     configs.push(configToSave as Config);
 
     localStorage.setItem('configs', JSON.stringify(configs));
@@ -25,5 +25,14 @@ export const recoverConfig = (uuid: string): Promise<Config> => {
     const config = configs.find(item => item.uuid === uuid);
 
     return resolve(config);
+  });
+};
+
+export const recoverConfigs = (): Promise<Configs> => {
+  return new Promise(resolve => {
+    const rawConfigs = fetchConfigs() || '';
+    const configs = rawConfigs ? (JSON.parse(rawConfigs) as Configs) : ([] as Configs);
+
+    return resolve(configs);
   });
 };

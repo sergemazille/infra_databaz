@@ -1,9 +1,20 @@
 <template>
-  <div>Home</div>
+  <div>
+    <ConfigList />
+  </div>
 </template>
 
 <script>
-export default {};
+import ConfigList from './ConfigList.vue';
+
+export default {
+  components: { ConfigList },
+  // created() {
+  //   const config = createConfig();
+  //   console.log('=== config ===>', config);
+  //   saveConfig(config);
+  // },
+};
 </script>
 
 <style lang="scss" scoped></style>
