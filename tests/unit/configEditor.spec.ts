@@ -1,7 +1,6 @@
 import ConfigEditor from '@/components/ConfigEditor.vue';
-import { shallowMount } from '@vue/test-utils';
 import { createConfig } from '@tests/fixtures/configs.ts';
-
+import { shallowMount } from '@vue/test-utils';
 const createWrapper = (opts = {}) => {
   return shallowMount(ConfigEditor, {
     ...opts,
@@ -105,5 +104,40 @@ describe('ConfigEditor', () => {
     wrapper.find('form').trigger('submit');
 
     expect(wrapper.emitted().submitted).toBeTruthy();
+  });
+
+  it('should not display clear password as default', () => {
+    const props = { config: createConfig() };
+    const wrapper = createWrapper({ props });
+
+    const serverPasswordInputWrapper = wrapper.find('input[data-selector="serverPassword"]');
+    const dbPasswordInputWrapper = wrapper.find('input[data-selector="dbPassword"]');
+
+    expect(serverPasswordInputWrapper.attributes('type')).toBe('password');
+    expect(dbPasswordInputWrapper.attributes('type')).toBe('password');
+  });
+
+  it('should allow the display of clear server password', async () => {
+    const props = { config: createConfig() };
+    const wrapper = createWrapper({ props });
+    const serverPasswordVisibilityToggleWrapper = wrapper.find('.icon[data-selector="serverPasswordVisibilityToggle"]');
+
+    serverPasswordVisibilityToggleWrapper.trigger('click');
+    await wrapper.vm.$nextTick();
+    const serverPasswordInputWrapper = wrapper.find('input[data-selector="serverPassword"]');
+
+    expect(serverPasswordInputWrapper.attributes('type')).toBe('text');
+  });
+
+  it('should allow the display of clear database password', async () => {
+    const props = { config: createConfig() };
+    const wrapper = createWrapper({ props });
+    const dbPasswordVisibilityToggleWrapper = wrapper.find('.icon[data-selector="dbPasswordVisibilityToggle"]');
+
+    dbPasswordVisibilityToggleWrapper.trigger('click');
+    await wrapper.vm.$nextTick();
+    const dbPasswordInputWrapper = wrapper.find('input[data-selector="dbPassword"]');
+
+    expect(dbPasswordInputWrapper.attributes('type')).toBe('text');
   });
 });

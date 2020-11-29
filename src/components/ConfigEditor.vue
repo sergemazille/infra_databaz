@@ -4,7 +4,7 @@
       <fieldset>
         <label>
           <span>Nom de la configuration</span>
-          <input id="test" data-selector="name" type="text" placeholder="Serveur de mon app" :value="config.name" @input="handleUpdated" />
+          <input data-selector="name" type="text" placeholder="Serveur de mon app" :value="config.name" @input="handleUpdated" />
         </label>
         <label required>
           <span>Adresse IP du serveur</span>
@@ -16,13 +16,21 @@
         </label>
         <label class="indented">
           <span>Mot de passe de l'utilisateur du serveur</span>
-          <input
-            data-selector="serverPassword"
-            type="password"
-            placeholder="password"
-            :value="config.serverPassword"
-            @input="handleUpdated"
-          />
+          <div class="input-group">
+            <input
+              data-selector="serverPassword"
+              :type="isServerPasswordVisible ? 'text' : 'password'"
+              placeholder="password"
+              :value="config.serverPassword"
+              @input="handleUpdated"
+            />
+            <Eye
+              class="icon"
+              :class="{ isActive: !isServerPasswordVisible }"
+              data-selector="serverPasswordVisibilityToggle"
+              @click="isServerPasswordVisible = !isServerPasswordVisible"
+            />
+          </div>
         </label>
 
         <div>ou</div>
@@ -54,7 +62,21 @@
         </label>
         <label>
           <span>Mot de passe de la base de données</span>
-          <input data-selector="dbPassword" type="password" placeholder="password" :value="config.dbPassword" @input="handleUpdated" />
+          <div class="input-group">
+            <input
+              data-selector="dbPassword"
+              :type="isDbPasswordVisible ? 'text' : 'password'"
+              placeholder="password"
+              :value="config.dbPassword"
+              @input="handleUpdated"
+            />
+            <Eye
+              class="icon"
+              :class="{ isActive: !isDbPasswordVisible }"
+              data-selector="dbPasswordVisibilityToggle"
+              @click="isDbPasswordVisible = !isDbPasswordVisible"
+            />
+          </div>
         </label>
       </fieldset>
     </div>
@@ -70,8 +92,13 @@
 
 <script>
 import { Config } from '@/domain/Config.ts';
+import Eye from '@/icons/Eye.svg.vue';
 
 export default {
+  components: {
+    Eye,
+  },
+
   props: {
     config: {
       type: Config,
@@ -90,6 +117,13 @@ export default {
 
       return !!(serverIp && dbName);
     },
+  },
+
+  data() {
+    return {
+      isServerPasswordVisible: false,
+      isDbPasswordVisible: false,
+    };
   },
 
   methods: {
@@ -144,6 +178,23 @@ label {
     &.required::after {
       content: '*';
       color: red;
+    }
+  }
+
+  .input-group {
+    display: flex;
+    align-items: center;
+
+    input {
+      margin-right: 6px;
+    }
+
+    .icon {
+      color: lightgrey;
+
+      &.isActive {
+        color: black;
+      }
     }
   }
 
