@@ -5,6 +5,12 @@ import { createConfig } from '@tests/fixtures/configs';
 import { shallowMount } from '@vue/test-utils';
 import store from '@/store/index';
 
+jest.mock('@/utils/system.ts', () => {
+  return {
+    browseForSshPrivateKeyPath: jest.fn(),
+  };
+});
+
 const createWrapper = (opts: any = {}) => {
   return shallowMount(ConfigsManager, {
     global: {
@@ -90,7 +96,7 @@ describe('ConfigsManager', () => {
   });
 
   it('should give config editor correct selected config properties', async () => {
-    // expect.assertions(2);
+    expect.assertions(2);
 
     const wrapper = createWrapper();
     const testConfig = createConfig({ uuid: '12345', dbPort: '3307', dbUsername: 'luke' });

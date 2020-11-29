@@ -37,13 +37,16 @@
 
         <label class="indented">
           <span>Chemin local de la clé ssh privée</span>
-          <input
-            data-selector="sshPrivateKeyPath"
-            type="text"
-            placeholder="/home/john/.ssh/id_rsa"
-            :value="config.sshPrivateKeyPath"
-            @input="handleUpdated"
-          />
+          <div class="input-group">
+            <input
+              data-selector="sshPrivateKeyPath"
+              type="text"
+              placeholder="/home/john/.ssh/id_rsa"
+              :value="config.sshPrivateKeyPath"
+              @input="handleUpdated"
+            />
+            <button @click="selectKeyPath">Parcourir</button>
+          </div>
         </label>
       </fieldset>
 
@@ -93,6 +96,7 @@
 <script>
 import { Config } from '@/domain/Config.ts';
 import Eye from '@/icons/Eye.svg.vue';
+import { browseForSshPrivateKeyPath } from '@/utils/system';
 
 export default {
   components: {
@@ -133,6 +137,12 @@ export default {
         field.querySelector('span').classList.add('required');
         field.querySelector('input').setAttribute('required', 'required');
       });
+    },
+
+    selectKeyPath() {
+      const keyPath = browseForSshPrivateKeyPath();
+
+      this.$emit('updated', { sshPrivateKeyPath: keyPath });
     },
 
     handleUpdated(event) {

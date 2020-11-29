@@ -1,11 +1,21 @@
 import ConfigEditor from '@/components/ConfigEditor.vue';
 import { createConfig } from '@tests/fixtures/configs.ts';
 import { shallowMount } from '@vue/test-utils';
+
+jest.mock('@/utils/system.ts', () => {
+  return {
+    browseForSshPrivateKeyPath: jest.fn(),
+  };
+});
+
 const createWrapper = (opts = {}) => {
   return shallowMount(ConfigEditor, {
     ...opts,
   });
 };
+
+// mock global
+// const window: any = jest.fn();
 
 describe('ConfigEditor', () => {
   it('should disable submit button if all required fields are not filled', () => {
