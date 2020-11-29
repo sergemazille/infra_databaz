@@ -1,5 +1,6 @@
 import { Config } from '@/domain/Config';
 import { createStore, StoreOptions } from 'vuex';
+import { storeConfig } from '@/utils/localstorage.ts';
 
 export const storeOptions: StoreOptions<any> = {
   state: {
@@ -22,9 +23,13 @@ export const storeOptions: StoreOptions<any> = {
       state.selectedConfigUuid = configUuid;
     },
 
-    updateSelectedConfig(state, updatedConfig) {
+    updateConfig(state, updatedConfig) {
       const selectedConfigIndex = state.configs.findIndex((config: Config) => config.uuid === state.selectedConfigUuid);
       state.configs.splice(selectedConfigIndex, 1, updatedConfig);
+    },
+
+    storeConfig(state, config) {
+      state.configs.push(config);
     },
   },
 
@@ -49,7 +54,18 @@ export const storeOptions: StoreOptions<any> = {
         ...property,
       };
 
-      commit('updateSelectedConfig', updatedConfig);
+      commit('updateConfig', updatedConfig);
+    },
+
+    saveConfig({ commit, getters }, configToSave) {
+      // store in localstorage
+      storeConfig(configToSave);
+
+      // store in state if it doesn't already exist
+      const doesAlreadyExist = getters.configByUuid(configToSave.uuid);
+      if (!doesAlreadyExist) {
+        commit('storeConfig', configToSave);
+      }
     },
   },
 

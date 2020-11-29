@@ -1,5 +1,7 @@
 <template>
   <div>
+    <button data-selector="createButton" type="button" @click="handleCreate">Créer une configuration</button>
+
     <ul class="configs">
       <li :key="config.uuid" v-for="config in configs" class="config">
         <ConfigComponent
@@ -11,7 +13,13 @@
       </li>
     </ul>
 
-    <ConfigEditor v-if="selectedConfig" :config="selectedConfig" :isPristine="isSelectedConfigPristine" @updated="patchSelectedConfig" />
+    <ConfigEditor
+      v-if="selectedConfig"
+      :config="selectedConfig"
+      :isPristine="isSelectedConfigPristine"
+      @updated="patchSelectedConfig"
+      @saved="saveSelectedConfig"
+    />
   </div>
 </template>
 
@@ -20,8 +28,9 @@ import ConfigComponent from '@/components/Config';
 import ConfigEditor from '@/components/ConfigEditor';
 import { Configs } from '@/domain/Config.ts';
 import { mapGetters } from 'vuex';
-import { recoverConfigByUuid } from '@/utils/localstorage';
 import { isEqual } from 'lodash';
+import { createEmptyConfig } from '@/utils/configs.ts';
+import { recoverConfigByUuid } from '@/utils/localstorage.ts';
 
 export default {
   components: {
@@ -36,12 +45,14 @@ export default {
     },
   },
 
+  data() {
+    return {
+      recordedConfig: undefined,
+    };
+  },
+
   computed: {
     ...mapGetters(['selectedConfig']),
-
-    recordedConfig() {
-      return recoverConfigByUuid(this.selectedConfig.uuid);
-    },
 
     isSelectedConfigPristine() {
       return isEqual(this.selectedConfig, this.recordedConfig);
@@ -49,8 +60,18 @@ export default {
   },
 
   methods: {
+    updateRecordedConfig() {
+      this.recordedConfig = recoverConfigByUuid(this.selectedConfig.uuid);
+    },
+
     selectConfig(configUuid) {
       this.$store.dispatch('setSelectedConfigUuid', configUuid);
+      this.updateRecordedConfig();
+    },
+
+    saveSelectedConfig() {
+      this.$store.dispatch('saveConfig', this.selectedConfig);
+      this.updateRecordedConfig();
     },
 
     removeConfig(configUuid) {
@@ -63,6 +84,12 @@ export default {
 
     patchSelectedConfig(property) {
       this.$store.dispatch('patchSelectedConfig', property);
+    },
+
+    handleCreate() {
+      const newConfig = createEmptyConfig();
+      this.$store.dispatch('saveConfig', newConfig);
+      this.selectConfig(newConfig.uuid);
     },
   },
 };

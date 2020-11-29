@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Configurations enregistrées</h2>
+    <h2>Configurations</h2>
     <ConfigsManager v-bind="{ configs }" />
   </div>
 </template>

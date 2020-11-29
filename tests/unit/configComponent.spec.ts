@@ -1,10 +1,10 @@
 import { Config } from '@/domain/Config';
 import ConfigComponent from '@/components/Config.vue';
-import { createConfig } from '@tests/fixtures/configs';
+import { createFixtureConfig } from '@/utils/configs';
 import { shallowMount } from '@vue/test-utils';
 
 const config = (properties?: Partial<Config>): Config => {
-  return createConfig({ ...properties });
+  return createFixtureConfig({ ...properties });
 };
 
 const createWrapper = (opts: any = {}) => {

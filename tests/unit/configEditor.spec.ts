@@ -1,5 +1,5 @@
 import ConfigEditor from '@/components/ConfigEditor.vue';
-import { createConfig } from '@tests/fixtures/configs.ts';
+import { createFixtureConfig } from '@/utils/configs';
 import { shallowMount } from '@vue/test-utils';
 
 jest.mock('@/utils/system.ts', () => {
@@ -14,12 +14,9 @@ const createWrapper = (opts = {}) => {
   });
 };
 
-// mock global
-// const window: any = jest.fn();
-
 describe('ConfigEditor', () => {
   it('should disable submit button if all required fields are not filled', () => {
-    const props = { config: createConfig({ serverIp: '', dbName: '' }) };
+    const props = { config: createFixtureConfig({ serverIp: '', dbName: '' }) };
     const wrapper = createWrapper({ props });
     const submitButtonEl = wrapper.find('button[type="submit"]').element as HTMLButtonElement;
 
@@ -27,7 +24,7 @@ describe('ConfigEditor', () => {
   });
 
   it('should enable submit button if all required fields are filled', () => {
-    const props = { config: createConfig({ serverIp: '1.2.3.4', dbName: 'superbase' }) };
+    const props = { config: createFixtureConfig({ serverIp: '1.2.3.4', dbName: 'superbase' }) };
     const wrapper = createWrapper({ props });
     const submitButtonEl = wrapper.find('button[type="submit"]').element as HTMLButtonElement;
 
@@ -37,7 +34,7 @@ describe('ConfigEditor', () => {
   it('should emit an event for each field updated', async () => {
     expect.assertions(2);
 
-    const props = { config: createConfig() };
+    const props = { config: createFixtureConfig() };
     const wrapper = createWrapper({ props });
 
     const nameWrapper = wrapper.find('[data-selector="name"]');
@@ -75,7 +72,7 @@ describe('ConfigEditor', () => {
   });
 
   it('should disable "update config" button when config is pristine', async () => {
-    const props = { config: createConfig() };
+    const props = { config: createFixtureConfig() };
     const wrapper = createWrapper({ props });
     const saveButtonEl = wrapper.find('[data-selector="saveButton"]').element as HTMLButtonElement;
 
@@ -83,15 +80,15 @@ describe('ConfigEditor', () => {
   });
 
   it('should enable "update config" button when config is dirty', async () => {
-    const props = { config: createConfig(), isPristine: false };
+    const props = { config: createFixtureConfig(), isPristine: false };
     const wrapper = createWrapper({ props });
     const saveButtonEl = wrapper.find('[data-selector="saveButton"]').element as HTMLButtonElement;
 
     expect(saveButtonEl.disabled).toBeFalsy();
   });
 
-  it('should emit an event when config needs to be saved', async () => {
-    const props = { config: createConfig(), isPristine: false };
+  it('should emit an event when config is saved', async () => {
+    const props = { config: createFixtureConfig(), isPristine: false };
     const wrapper = createWrapper({ props });
     const saveButtonWrapper = wrapper.find('[data-selector="saveButton"]');
     saveButtonWrapper.trigger('click');
@@ -100,7 +97,7 @@ describe('ConfigEditor', () => {
   });
 
   it('should emit an event when config is deleted', async () => {
-    const props = { config: createConfig() };
+    const props = { config: createFixtureConfig() };
     const wrapper = createWrapper({ props });
     const deleteButtonWrapper = wrapper.find('[data-selector="deleteButton"]');
     deleteButtonWrapper.trigger('click');
@@ -109,7 +106,7 @@ describe('ConfigEditor', () => {
   });
 
   it('should emit an event when form is submitted', async () => {
-    const props = { config: createConfig() };
+    const props = { config: createFixtureConfig() };
     const wrapper = createWrapper({ props });
     wrapper.find('form').trigger('submit');
 
@@ -117,7 +114,7 @@ describe('ConfigEditor', () => {
   });
 
   it('should not display clear password as default', () => {
-    const props = { config: createConfig() };
+    const props = { config: createFixtureConfig() };
     const wrapper = createWrapper({ props });
 
     const serverPasswordInputWrapper = wrapper.find('input[data-selector="serverPassword"]');
@@ -128,7 +125,7 @@ describe('ConfigEditor', () => {
   });
 
   it('should allow the display of clear server password', async () => {
-    const props = { config: createConfig() };
+    const props = { config: createFixtureConfig() };
     const wrapper = createWrapper({ props });
     const serverPasswordVisibilityToggleWrapper = wrapper.find('.icon[data-selector="serverPasswordVisibilityToggle"]');
 
@@ -140,7 +137,7 @@ describe('ConfigEditor', () => {
   });
 
   it('should allow the display of clear database password', async () => {
-    const props = { config: createConfig() };
+    const props = { config: createFixtureConfig() };
     const wrapper = createWrapper({ props });
     const dbPasswordVisibilityToggleWrapper = wrapper.find('.icon[data-selector="dbPasswordVisibilityToggle"]');
 

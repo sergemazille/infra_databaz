@@ -1,12 +1,13 @@
 <template>
   <div id="app">
-    <h1>Databaz</h1>
+    <h1>DataBaZ</h1>
   </div>
   <router-view />
 </template>
 
 <script>
 import { recoverConfigs } from '@/utils/localstorage.ts';
+
 export default {
   async created() {
     const configs = await recoverConfigs();

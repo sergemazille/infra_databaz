@@ -1,7 +1,8 @@
+import * as configUtils from '@/utils/configs';
 import ConfigComponent from '@/components/Config.vue';
 import ConfigEditor from '@/components/ConfigEditor.vue';
 import ConfigsManager from '@/components/ConfigsManager.vue';
-import { createConfig } from '@tests/fixtures/configs';
+import { createFixtureConfig, refFixtureConfig } from '@/utils/configs';
 import { shallowMount } from '@vue/test-utils';
 import store from '@/store/index';
 
@@ -9,6 +10,10 @@ jest.mock('@/utils/system.ts', () => {
   return {
     browseForSshPrivateKeyPath: jest.fn(),
   };
+});
+
+jest.spyOn(configUtils, 'createEmptyConfig').mockImplementation(() => {
+  return refFixtureConfig;
 });
 
 const createWrapper = (opts: any = {}) => {
@@ -30,7 +35,7 @@ describe('ConfigsManager', () => {
 
   it('should display configs', () => {
     const props = {
-      configs: [createConfig(), createConfig()],
+      configs: [createFixtureConfig(), createFixtureConfig()],
     };
     const wrapper = createWrapper({ props });
 
@@ -41,7 +46,7 @@ describe('ConfigsManager', () => {
 
   it('should have no selected config by default', () => {
     const props = {
-      configs: [createConfig()],
+      configs: [createFixtureConfig()],
     };
     const wrapper = createWrapper({ props });
 
@@ -49,8 +54,8 @@ describe('ConfigsManager', () => {
   });
 
   it("should dispatch selected config's uuid", () => {
-    const firstConfig = createConfig({ uuid: '12345' });
-    const secondConfig = createConfig({ uuid: '54321' });
+    const firstConfig = createFixtureConfig({ uuid: '12345' });
+    const secondConfig = createFixtureConfig({ uuid: '54321' });
     const props = {
       configs: [firstConfig, secondConfig],
     };
@@ -65,8 +70,8 @@ describe('ConfigsManager', () => {
   });
 
   it('should remove specified config', () => {
-    const firstConfig = createConfig({ uuid: '1' });
-    const secondConfig = createConfig({ uuid: '2' });
+    const firstConfig = createFixtureConfig({ uuid: '1' });
+    const secondConfig = createFixtureConfig({ uuid: '2' });
     const props = { configs: [firstConfig, secondConfig] };
     const wrapper = createWrapper({ props });
     jest.spyOn(wrapper.vm.$store, 'dispatch');
@@ -81,8 +86,8 @@ describe('ConfigsManager', () => {
   it('should give selected config component the correct isSelected props', async () => {
     expect.assertions(1);
 
-    const testConfig = createConfig({ uuid: '12345' });
-    const randomConfig = createConfig();
+    const testConfig = createFixtureConfig({ uuid: '12345' });
+    const randomConfig = createFixtureConfig();
     const configs = [testConfig, randomConfig];
 
     const props = { configs };
@@ -99,7 +104,7 @@ describe('ConfigsManager', () => {
     expect.assertions(2);
 
     const wrapper = createWrapper();
-    const testConfig = createConfig({ uuid: '12345', dbPort: '3307', dbUsername: 'luke' });
+    const testConfig = createFixtureConfig({ uuid: '12345', dbPort: '3307', dbUsername: 'luke' });
     store.commit('storeConfigs', [testConfig]);
     store.commit('storeSelectedConfigUuid', '12345');
     await wrapper.vm.$nextTick();
@@ -113,7 +118,7 @@ describe('ConfigsManager', () => {
     expect.assertions(1);
 
     const wrapper = createWrapper();
-    const testConfig = createConfig({ uuid: '12345' });
+    const testConfig = createFixtureConfig({ uuid: '12345' });
     store.commit('storeConfigs', [testConfig]);
     await wrapper.vm.$nextTick();
     const configEditorWrapper = wrapper.findComponent(ConfigEditor);
@@ -130,6 +135,30 @@ describe('ConfigsManager', () => {
     expect(wrapper.vm.$store.dispatch).toHaveBeenCalledWith('patchSelectedConfig', ['name', 'ma super config']);
   });
 
+  it('should dispatch save selected config', () => {
+    const configToSave = createFixtureConfig({ uuid: '12345' });
+    const props = { configs: [configToSave] };
+    const wrapper = createWrapper({ props });
+    jest.spyOn(wrapper.vm.$store, 'dispatch');
+
+    store.commit('storeConfigs', [configToSave]);
+    store.commit('storeSelectedConfigUuid', '12345');
+    wrapper.vm.saveSelectedConfig();
+
+    expect(wrapper.vm.$store.dispatch).toHaveBeenCalledTimes(1);
+    expect(wrapper.vm.$store.dispatch).toHaveBeenCalledWith('saveConfig', configToSave);
+  });
+
+  it('should dispatch create new config and set it as selected config', () => {
+    const wrapper = createWrapper({ props: { configs: [] } });
+    jest.spyOn(wrapper.vm.$store, 'dispatch');
+
+    wrapper.vm.handleCreate();
+
+    expect(wrapper.vm.$store.dispatch).toHaveBeenCalledTimes(2);
+    expect(wrapper.vm.$store.dispatch).toHaveBeenCalledWith('saveConfig', refFixtureConfig);
+    expect(wrapper.vm.$store.dispatch).toHaveBeenCalledWith('setSelectedConfigUuid', refFixtureConfig.uuid);
+  });
   // suppression d'une config du localstorage
   // CREATION D'UNE CONFIG
   // si une seule config alors elle est selectionnée par défaut
