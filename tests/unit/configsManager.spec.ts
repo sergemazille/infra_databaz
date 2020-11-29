@@ -80,7 +80,7 @@ describe('ConfigsManager', () => {
     firstConfigWrapper.trigger('removed');
 
     expect(store.dispatch).toHaveBeenCalledTimes(1);
-    expect(store.dispatch).toHaveBeenCalledWith('removeConfigByUuid', '1');
+    expect(store.dispatch).toHaveBeenCalledWith('deleteConfigByUuid', '1');
   });
 
   it('should give selected config component the correct isSelected props', async () => {
@@ -153,13 +153,35 @@ describe('ConfigsManager', () => {
     const wrapper = createWrapper({ props: { configs: [] } });
     jest.spyOn(wrapper.vm.$store, 'dispatch');
 
-    wrapper.vm.handleCreate();
+    wrapper.vm.createConfig();
 
     expect(wrapper.vm.$store.dispatch).toHaveBeenCalledTimes(2);
     expect(wrapper.vm.$store.dispatch).toHaveBeenCalledWith('saveConfig', refFixtureConfig);
     expect(wrapper.vm.$store.dispatch).toHaveBeenCalledWith('setSelectedConfigUuid', refFixtureConfig.uuid);
   });
-  // suppression d'une config du localstorage
-  // CREATION D'UNE CONFIG
-  // si une seule config alors elle est selectionnée par défaut
+
+  it('should select a lone config by default', () => {
+    const testConfig = createFixtureConfig({ uuid: '12345' });
+    const props = { configs: [testConfig] };
+    const wrapper = createWrapper({ props });
+    store.commit('storeConfigs', [testConfig]);
+
+    expect(wrapper.vm.selectedConfig).toStrictEqual(testConfig);
+  });
+
+  it.only('should dispatch delete selected config', async () => {
+    const configToDelete = createFixtureConfig({ uuid: '12345' });
+    const props = { configs: [configToDelete] };
+    const wrapper = createWrapper({ props });
+    store.commit('storeConfigs', [configToDelete]);
+    jest.spyOn(wrapper.vm.$store, 'dispatch');
+
+    await wrapper.vm.$nextTick();
+
+    const editorWrapper = wrapper.findComponent(ConfigEditor);
+    editorWrapper.trigger('deleted');
+
+    expect(wrapper.vm.$store.dispatch).toHaveBeenCalledTimes(1);
+    expect(wrapper.vm.$store.dispatch).toHaveBeenCalledWith('deleteConfigByUuid', '12345');
+  });
 });

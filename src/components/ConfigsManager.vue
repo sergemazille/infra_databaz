@@ -1,6 +1,6 @@
 <template>
   <div>
-    <button data-selector="createButton" type="button" @click="handleCreate">Créer une configuration</button>
+    <button data-selector="createButton" type="button" @click="createConfig">Créer une configuration</button>
 
     <ul class="configs">
       <li :key="config.uuid" v-for="config in configs" class="config">
@@ -8,7 +8,7 @@
           v-bind="{ config }"
           :isSelected="isConfigSelected(config.uuid)"
           @selected="selectConfig(config.uuid)"
-          @removed="removeConfig(config.uuid)"
+          @removed="deleteConfig(config.uuid)"
         />
       </li>
     </ul>
@@ -19,6 +19,7 @@
       :isPristine="isSelectedConfigPristine"
       @updated="patchSelectedConfig"
       @saved="saveSelectedConfig"
+      @deleted="deleteConfig"
     />
   </div>
 </template>
@@ -61,6 +62,10 @@ export default {
 
   methods: {
     updateRecordedConfig() {
+      if (!this.selectedConfig) {
+        return;
+      }
+
       this.recordedConfig = recoverConfigByUuid(this.selectedConfig.uuid);
     },
 
@@ -74,8 +79,9 @@ export default {
       this.updateRecordedConfig();
     },
 
-    removeConfig(configUuid) {
-      this.$store.dispatch('removeConfigByUuid', configUuid);
+    deleteConfig() {
+      const configUuid = this.selectedConfig.uuid;
+      this.$store.dispatch('deleteConfigByUuid', configUuid);
     },
 
     isConfigSelected(configUuid) {
@@ -86,11 +92,17 @@ export default {
       this.$store.dispatch('patchSelectedConfig', property);
     },
 
-    handleCreate() {
+    createConfig() {
       const newConfig = createEmptyConfig();
       this.$store.dispatch('saveConfig', newConfig);
       this.selectConfig(newConfig.uuid);
     },
+  },
+
+  created() {
+    if (this.configs.length === 1) {
+      this.selectConfig(this.configs[0].uuid);
+    }
   },
 };
 </script>

@@ -54,7 +54,7 @@ describe('Store', () => {
     const store = createVuexStore();
 
     store.commit('storeConfigs', configs);
-    store.dispatch('removeConfigByUuid', firstConfig.uuid);
+    store.dispatch('deleteConfigByUuid', firstConfig.uuid);
 
     expect(store.state.configs.length).toBe(1);
   });
