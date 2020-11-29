@@ -2,12 +2,12 @@ import { Config, Configs } from '@/domain/Config.ts';
 import { v4 as uuid } from 'uuid';
 
 export const fetchConfigs = () => {
-  return localStorage.getItem('configs');
+  return localStorage.getItem('configs') || '';
 };
 
 export const saveConfig = (configToSave: Config): Promise<void> => {
   return new Promise(resolve => {
-    const rawConfigs = fetchConfigs() || '';
+    const rawConfigs = fetchConfigs();
     const configs = rawConfigs ? (JSON.parse(rawConfigs) as Configs) : ([] as Configs);
 
     configToSave.uuid = configToSave.uuid ?? uuid();
@@ -18,19 +18,20 @@ export const saveConfig = (configToSave: Config): Promise<void> => {
   });
 };
 
-export const recoverConfig = (uuid: string): Promise<Config> => {
-  return new Promise(resolve => {
-    const rawConfigs = fetchConfigs() || '';
-    const configs = JSON.parse(rawConfigs) as Configs;
-    const config = configs.find(item => item.uuid === uuid);
+export const recoverConfigByUuid = (configUuid: string): Config | void => {
+  if (!fetchConfigs()) {
+    return;
+  }
 
-    return resolve(config);
-  });
+  const rawConfigs = fetchConfigs();
+  const configs = JSON.parse(rawConfigs) as Configs;
+
+  return configs.find(config => config.uuid === configUuid);
 };
 
 export const recoverConfigs = (): Promise<Configs> => {
   return new Promise(resolve => {
-    const rawConfigs = fetchConfigs() || '';
+    const rawConfigs = fetchConfigs();
     const configs = rawConfigs ? (JSON.parse(rawConfigs) as Configs) : ([] as Configs);
 
     return resolve(configs);
