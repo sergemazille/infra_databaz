@@ -6,6 +6,7 @@ import { storeConfig } from '@/utils/localstorage.ts';
 jest.mock('@/utils/localstorage.ts', () => {
   return {
     storeConfig: jest.fn(),
+    unstoreConfig: jest.fn(),
   };
 });
 
@@ -47,13 +48,13 @@ describe('Store', () => {
     expect(expectedConfig.uuid).toBe('2');
   });
 
-  it('should remove config by id', () => {
+  it('should remove config by id', async () => {
     const firstConfig = createFixtureConfig({ uuid: '1' });
     const secondConfig = createFixtureConfig({ uuid: '2' });
     const configs = [firstConfig, secondConfig];
     const store = createVuexStore();
 
-    store.commit('storeConfigs', configs);
+    await store.commit('storeConfigs', configs);
     store.dispatch('deleteConfigByUuid', firstConfig.uuid);
 
     expect(store.state.configs.length).toBe(1);

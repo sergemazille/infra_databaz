@@ -1,6 +1,6 @@
+import { StoreOptions, createStore } from 'vuex';
+import { storeConfig, unstoreConfig } from '@/utils/localstorage.ts';
 import { Config } from '@/domain/Config';
-import { createStore, StoreOptions } from 'vuex';
-import { deleteConfigByUuid, storeConfig } from '@/utils/localstorage.ts';
 
 export const storeOptions: StoreOptions<any> = {
   state: {
@@ -40,7 +40,7 @@ export const storeOptions: StoreOptions<any> = {
 
     deleteConfigByUuid({ commit }, configUuid) {
       // delete from localstorage
-      deleteConfigByUuid(configUuid);
+      unstoreConfig(configUuid);
 
       commit('deleteConfigByUuid', configUuid);
     },

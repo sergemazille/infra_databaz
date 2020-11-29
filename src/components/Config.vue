@@ -1,7 +1,7 @@
 <template>
   <div class="config" :class="{ isSelected }" @click="handleSelected">
     <span v-text="config.name" />
-    <button v-text="'&times;'" @click.stop="handleRemoved" />
+    <button v-text="'&times;'" @click.stop="handleDeleted" />
   </div>
 </template>
 
@@ -26,8 +26,8 @@ export default {
       this.$emit('selected');
     },
 
-    handleRemoved() {
-      this.$emit('removed');
+    handleDeleted() {
+      this.$emit('deleted');
     },
   },
 };

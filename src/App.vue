@@ -6,11 +6,11 @@
 </template>
 
 <script>
-import { recoverConfigs } from '@/utils/localstorage.ts';
+import { fetchConfigs } from '@/utils/localstorage.ts';
 
 export default {
   async created() {
-    const configs = await recoverConfigs();
+    const configs = await fetchConfigs();
     this.$store.dispatch('setConfigs', configs);
   },
 };

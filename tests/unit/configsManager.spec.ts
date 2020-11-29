@@ -69,7 +69,7 @@ describe('ConfigsManager', () => {
     expect(wrapper.vm.$store.dispatch).toHaveBeenCalledWith('setSelectedConfigUuid', '12345');
   });
 
-  it('should remove specified config', () => {
+  it('should delete specified config', () => {
     const firstConfig = createFixtureConfig({ uuid: '1' });
     const secondConfig = createFixtureConfig({ uuid: '2' });
     const props = { configs: [firstConfig, secondConfig] };
@@ -77,7 +77,7 @@ describe('ConfigsManager', () => {
     jest.spyOn(wrapper.vm.$store, 'dispatch');
 
     const firstConfigWrapper = wrapper.findComponent(ConfigComponent);
-    firstConfigWrapper.trigger('removed');
+    firstConfigWrapper.trigger('deleted');
 
     expect(store.dispatch).toHaveBeenCalledTimes(1);
     expect(store.dispatch).toHaveBeenCalledWith('deleteConfigByUuid', '1');
@@ -145,7 +145,7 @@ describe('ConfigsManager', () => {
     store.commit('storeSelectedConfigUuid', '12345');
     wrapper.vm.saveSelectedConfig();
 
-    expect(wrapper.vm.$store.dispatch).toHaveBeenCalledTimes(1);
+    expect(wrapper.vm.$store.dispatch).toHaveBeenCalledTimes(2);
     expect(wrapper.vm.$store.dispatch).toHaveBeenCalledWith('saveConfig', configToSave);
   });
 
@@ -169,7 +169,7 @@ describe('ConfigsManager', () => {
     expect(wrapper.vm.selectedConfig).toStrictEqual(testConfig);
   });
 
-  it.only('should dispatch delete selected config', async () => {
+  it('should dispatch delete selected config', async () => {
     const configToDelete = createFixtureConfig({ uuid: '12345' });
     const props = { configs: [configToDelete] };
     const wrapper = createWrapper({ props });
@@ -181,7 +181,7 @@ describe('ConfigsManager', () => {
     const editorWrapper = wrapper.findComponent(ConfigEditor);
     editorWrapper.trigger('deleted');
 
-    expect(wrapper.vm.$store.dispatch).toHaveBeenCalledTimes(1);
+    expect(wrapper.vm.$store.dispatch).toHaveBeenCalledTimes(2); // set default selected + delete event
     expect(wrapper.vm.$store.dispatch).toHaveBeenCalledWith('deleteConfigByUuid', '12345');
   });
 });

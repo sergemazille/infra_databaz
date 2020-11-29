@@ -8,7 +8,7 @@
           v-bind="{ config }"
           :isSelected="isConfigSelected(config.uuid)"
           @selected="selectConfig(config.uuid)"
-          @removed="deleteConfig(config.uuid)"
+          @deleted="deleteConfig(config.uuid)"
         />
       </li>
     </ul>
@@ -19,7 +19,7 @@
       :isPristine="isSelectedConfigPristine"
       @updated="patchSelectedConfig"
       @saved="saveSelectedConfig"
-      @deleted="deleteConfig"
+      @deleted="deleteConfig(selectedConfig.uuid)"
     />
   </div>
 </template>
@@ -79,8 +79,7 @@ export default {
       this.updateRecordedConfig();
     },
 
-    deleteConfig() {
-      const configUuid = this.selectedConfig.uuid;
+    deleteConfig(configUuid) {
       this.$store.dispatch('deleteConfigByUuid', configUuid);
     },
 
@@ -108,6 +107,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+button {
+  margin-bottom: 12px;
+}
+
 .configs {
   display: flex;
   margin-bottom: 24px;

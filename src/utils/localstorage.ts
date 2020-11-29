@@ -24,14 +24,10 @@ export const recoverConfigByUuid = (configUuid: string) => {
   return configs.find(config => config.uuid === configUuid);
 };
 
-export const deleteConfigByUuid = (configUuid: string) => {
+export const unstoreConfig = (configUuid: string) => {
   const configs = fetchConfigs();
   const configIndex = configs.findIndex(config => config?.uuid === configUuid);
   configs.splice(configIndex, 1);
 
   localStorage.setItem('configs', JSON.stringify(configs));
-};
-
-export const recoverConfigs = () => {
-  return fetchConfigs();
 };

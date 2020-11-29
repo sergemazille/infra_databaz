@@ -43,6 +43,6 @@ describe('ConfigComponent', () => {
     const wrapper = createWrapper();
     wrapper.find('button').trigger('click');
 
-    expect(wrapper.emitted('removed')).toBeTruthy();
+    expect(wrapper.emitted('deleted')).toBeTruthy();
   });
 });
