@@ -8,7 +8,7 @@ import './style/reset.css';
 import './style/common.scss';
 
 // initialize configs
-store.dispatch('retrieveConfigs');
+store.dispatch('loadConfigs');
 
 createApp(App)
   .use(store)

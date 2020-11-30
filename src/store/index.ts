@@ -49,7 +49,7 @@ export const storeOptions: StoreOptions<any> = {
       commit('updateConfig', updatedConfig);
     },
 
-    retrieveConfigs({ commit }) {
+    loadConfigs({ commit }) {
       // fetch from localstorage
       const configs = fetchConfigs();
 
