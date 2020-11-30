@@ -19,7 +19,7 @@ describe('Store', () => {
     const configs = [firstConfig, secondConfig];
     const store = createVuexStore();
 
-    store.dispatch('setConfigs', [firstConfig, secondConfig]);
+    store.commit('storeConfigs', [firstConfig, secondConfig]);
 
     expect(store.getters.configs).toStrictEqual(configs);
   });
@@ -30,7 +30,7 @@ describe('Store', () => {
     const configs = [randomConfig, testConfig];
     const store = createVuexStore();
 
-    store.dispatch('setConfigs', configs);
+    store.commit('storeConfigs', configs);
     store.dispatch('setSelectedConfigUuid', testConfig.uuid);
 
     expect(store.getters.selectedConfig.uuid).toBe('54321');

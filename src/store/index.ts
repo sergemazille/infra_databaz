@@ -1,5 +1,5 @@
 import { StoreOptions, createStore } from 'vuex';
-import { storeConfig, unstoreConfig } from '@/utils/localstorage.ts';
+import { fetchConfigs, storeConfig, unstoreConfig } from '@/utils/localstorage.ts';
 import { Config } from '@/domain/Config';
 
 export const storeOptions: StoreOptions<any> = {
@@ -34,17 +34,6 @@ export const storeOptions: StoreOptions<any> = {
   },
 
   actions: {
-    setConfigs({ commit }, configs) {
-      commit('storeConfigs', configs);
-    },
-
-    deleteConfigByUuid({ commit }, configUuid) {
-      // delete from localstorage
-      unstoreConfig(configUuid);
-
-      commit('deleteConfigByUuid', configUuid);
-    },
-
     setSelectedConfigUuid({ commit }, configUuid) {
       commit('storeSelectedConfigUuid', configUuid);
     },
@@ -60,6 +49,13 @@ export const storeOptions: StoreOptions<any> = {
       commit('updateConfig', updatedConfig);
     },
 
+    retrieveConfigs({ commit }) {
+      // fetch from localstorage
+      const configs = fetchConfigs();
+
+      commit('storeConfigs', configs);
+    },
+
     saveConfig({ commit, getters }, configToSave) {
       // store in localstorage
       storeConfig(configToSave);
@@ -69,6 +65,13 @@ export const storeOptions: StoreOptions<any> = {
       if (!doesAlreadyExist) {
         commit('storeConfig', configToSave);
       }
+    },
+
+    deleteConfigByUuid({ commit }, configUuid) {
+      // delete from localstorage
+      unstoreConfig(configUuid);
+
+      commit('deleteConfigByUuid', configUuid);
     },
   },
 
