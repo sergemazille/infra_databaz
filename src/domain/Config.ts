@@ -2,6 +2,7 @@ export interface Config {
   uuid: string;
   name: string;
   serverIp: string;
+  serverSshPort: string;
   serverUsername: string;
   serverPassword: string;
   sshPrivateKeyPath: string;

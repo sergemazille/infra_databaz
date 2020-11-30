@@ -11,6 +11,10 @@
           <input data-selector="serverIp" type="text" placeholder="123.456.78.9" :value="config.serverIp" @input="handleUpdated" />
         </label>
         <label>
+          <span>Port ssh du serveur</span>
+          <input data-selector="serverSshPort" type="text" placeholder="22" :value="config.serverSshPort" @input="handleUpdated" />
+        </label>
+        <label>
           <span>Nom de l'utilisateur du serveur</span>
           <input data-selector="serverUsername" type="text" placeholder="john" :value="config.serverUsername" @input="handleUpdated" />
         </label>
@@ -45,7 +49,7 @@
               :value="config.sshPrivateKeyPath"
               @input="handleUpdated"
             />
-            <button @click="selectKeyPath">Parcourir</button>
+            <button type="button" @click.prevent="selectKeyPath">Parcourir</button>
           </div>
         </label>
       </fieldset>
