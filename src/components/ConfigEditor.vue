@@ -89,7 +89,7 @@
       <button data-selector="deleteButton" type="button" @click="handleDeleted">Supprimer</button>
     </div>
 
-    <button type="submit" :disabled="!canSubmit" @click="submit">Connexion</button>
+    <button type="submit" :disabled="!canSubmit">Connexion</button>
   </form>
 </template>
 
