@@ -4,11 +4,13 @@ import { Type as NotificationStatus } from '@/domain/Notification.ts';
 import { shallowMount } from '@vue/test-utils';
 
 const createWrapper = () => {
+  const notification = {
+    message: 'Hello world!',
+    type: NotificationStatus.SUCCESS,
+  };
+
   return shallowMount(Notification, {
-    props: {
-      message: 'Hello world!',
-      type: NotificationStatus.SUCCESS,
-    },
+    props: { notification },
   });
 };
 

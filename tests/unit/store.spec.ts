@@ -1,7 +1,8 @@
-import { storeOptions } from '@/store/index';
+import { Type } from '@/domain/Notification.ts';
 import { createFixtureConfig } from '@/utils/configs';
 import { createStore } from 'vuex';
 import { storeConfig } from '@/utils/localstorage.ts';
+import { storeOptions } from '@/store/index';
 
 jest.mock('@/utils/localstorage.ts', () => {
   return {
@@ -9,6 +10,8 @@ jest.mock('@/utils/localstorage.ts', () => {
     unstoreConfig: jest.fn(),
   };
 });
+
+jest.useFakeTimers();
 
 const createVuexStore = () => createStore({ ...storeOptions });
 
@@ -81,5 +84,30 @@ describe('Store', () => {
 
     expect(storeConfig).toHaveBeenCalledTimes(1);
     expect(storeConfig).toHaveBeenCalledWith(configToSave);
+  });
+
+  it('should store a notification', () => {
+    const notification = {
+      message: 'Hello world!',
+      type: Type.SUCCESS,
+    };
+    const store = createVuexStore();
+
+    store.dispatch('setNotification', notification);
+
+    expect(store.getters.notification).toEqual(notification);
+  });
+
+  it('should remove a notification after a specified time', () => {
+    const notification = {
+      message: 'Hello world!',
+      type: Type.SUCCESS,
+    };
+    const store = createVuexStore();
+
+    store.dispatch('setNotification', notification);
+    jest.runAllTimers();
+
+    expect(store.getters.notification).toEqual(null);
   });
 });

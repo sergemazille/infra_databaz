@@ -1,17 +1,14 @@
 <template>
-  <div :class="type">{{ message }}</div>
+  <div :class="notification.type">{{ notification.message }}</div>
 </template>
 
 <script>
+import { Notification } from '@/domain/Notification.ts';
+
 export default {
   props: {
-    message: {
-      type: String,
-      required: true,
-    },
-
-    type: {
-      type: String,
+    notification: {
+      type: Notification,
       required: true,
     },
   },

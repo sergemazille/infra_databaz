@@ -3,6 +3,8 @@ export enum Type {
   ERROR = 'ERROR',
 }
 
+export const displayDurationInMs = 5000;
+
 export interface Notification {
   message: string;
   type: Type;

@@ -1,11 +1,13 @@
 import { StoreOptions, createStore } from 'vuex';
 import { fetchConfigs, storeConfig, unstoreConfig } from '@/utils/localstorage.ts';
 import { Config } from '@/domain/Config';
+import { displayDurationInMs } from '@/domain/Notification.ts';
 
 export const storeOptions: StoreOptions<any> = {
   state: {
     configs: [],
     selectedConfigUuid: '',
+    notification: null,
   },
 
   mutations: {
@@ -30,6 +32,14 @@ export const storeOptions: StoreOptions<any> = {
 
     storeConfig(state, config) {
       state.configs.push(config);
+    },
+
+    storeNotification(state, notification) {
+      state.notification = notification;
+    },
+
+    removeNotification(state) {
+      state.notification = null;
     },
   },
 
@@ -73,12 +83,21 @@ export const storeOptions: StoreOptions<any> = {
 
       commit('deleteConfigByUuid', configUuid);
     },
+
+    setNotification({ commit }, notification) {
+      commit('storeNotification', notification);
+
+      setTimeout(() => {
+        commit('removeNotification');
+      }, displayDurationInMs);
+    },
   },
 
   getters: {
     configs: state => state.configs,
     configByUuid: state => (configUuid: string) => state.configs.find((config: Config) => config.uuid === configUuid),
     selectedConfig: state => state.configs.find((config: Config) => config.uuid === state.selectedConfigUuid),
+    notification: state => state.notification,
   },
 };
 
