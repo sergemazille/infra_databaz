@@ -7,8 +7,8 @@
         <ConfigComponent
           v-bind="{ config }"
           :isSelected="isConfigSelected(config.uuid)"
-          @selected="selectConfig(config.uuid)"
-          @deleted="deleteConfig(config.uuid)"
+          @select="selectConfig(config.uuid)"
+          @delete="deleteConfig(config.uuid)"
         />
       </li>
     </ul>
@@ -17,9 +17,9 @@
       v-if="selectedConfig"
       :config="selectedConfig"
       :isPristine="isSelectedConfigPristine"
-      @updated="patchSelectedConfig"
-      @saved="saveSelectedConfig"
-      @deleted="deleteConfig(selectedConfig.uuid)"
+      @update="patchSelectedConfig"
+      @save="saveSelectedConfig"
+      @delete="deleteConfig(selectedConfig.uuid)"
     />
   </div>
 </template>

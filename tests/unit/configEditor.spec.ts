@@ -15,20 +15,36 @@ const createWrapper = (opts = {}) => {
 };
 
 describe('ConfigEditor', () => {
-  it('should disable submit button if all required fields are not filled', () => {
+  it('should disable save db button if all required fields are not filled', () => {
     const props = { config: createFixtureConfig({ serverIp: '', dbName: '' }) };
     const wrapper = createWrapper({ props });
-    const submitButtonEl = wrapper.find('button[type="submit"]').element as HTMLButtonElement;
+    const saveDbButtonEl = wrapper.find('[data-selector="saveDbButton"]').element as HTMLButtonElement;
 
-    expect(submitButtonEl.disabled).toBeTruthy();
+    expect(saveDbButtonEl.disabled).toBeTruthy();
   });
 
-  it('should enable submit button if all required fields are filled', () => {
+  it('should disable restore db button if all required fields are not filled', () => {
+    const props = { config: createFixtureConfig({ serverIp: '', dbName: '' }) };
+    const wrapper = createWrapper({ props });
+    const restoreDbButtonEl = wrapper.find('[data-selector="restoreDbButton"]').element as HTMLButtonElement;
+
+    expect(restoreDbButtonEl.disabled).toBeTruthy();
+  });
+
+  it('should enable save db button if all required fields are filled', () => {
     const props = { config: createFixtureConfig({ serverIp: '1.2.3.4', dbName: 'superbase' }) };
     const wrapper = createWrapper({ props });
-    const submitButtonEl = wrapper.find('button[type="submit"]').element as HTMLButtonElement;
+    const saveDbButtonEl = wrapper.find('[data-selector="saveDbButton"]').element as HTMLButtonElement;
 
-    expect(submitButtonEl.disabled).toBeFalsy();
+    expect(saveDbButtonEl.disabled).toBeFalsy();
+  });
+
+  it('should enable restore db button if all required fields are filled', () => {
+    const props = { config: createFixtureConfig({ serverIp: '1.2.3.4', dbName: 'superbase' }) };
+    const wrapper = createWrapper({ props });
+    const restoreDbButtonEl = wrapper.find('[data-selector="restoreDbButton"]').element as HTMLButtonElement;
+
+    expect(restoreDbButtonEl.disabled).toBeFalsy();
   });
 
   it('should emit an event for each field updated', async () => {
@@ -57,8 +73,8 @@ describe('ConfigEditor', () => {
     await dbUsernameWrapper.setValue('db_username');
     await dbPasswordWrapper.setValue('db_password');
 
-    expect(wrapper.emitted().updated.length).toBe(9);
-    expect(wrapper.emitted().updated).toEqual([
+    expect(wrapper.emitted('update-config').length).toBe(9);
+    expect(wrapper.emitted('update-config')).toEqual([
       [{ name: 'abcd' }],
       [{ serverIp: '1.2.3.4' }],
       [{ serverUsername: 'john' }],
@@ -74,43 +90,51 @@ describe('ConfigEditor', () => {
   it('should disable "update config" button when config is pristine', async () => {
     const props = { config: createFixtureConfig() };
     const wrapper = createWrapper({ props });
-    const saveButtonEl = wrapper.find('[data-selector="saveButton"]').element as HTMLButtonElement;
+    const saveConfigButtonEl = wrapper.find('[data-selector="saveConfigButton"]').element as HTMLButtonElement;
 
-    expect(saveButtonEl.disabled).toBeTruthy();
+    expect(saveConfigButtonEl.disabled).toBeTruthy();
   });
 
   it('should enable "update config" button when config is dirty', async () => {
     const props = { config: createFixtureConfig(), isPristine: false };
     const wrapper = createWrapper({ props });
-    const saveButtonEl = wrapper.find('[data-selector="saveButton"]').element as HTMLButtonElement;
+    const saveConfigButtonEl = wrapper.find('[data-selector="saveConfigButton"]').element as HTMLButtonElement;
 
-    expect(saveButtonEl.disabled).toBeFalsy();
+    expect(saveConfigButtonEl.disabled).toBeFalsy();
   });
 
   it('should emit an event when config is saved', async () => {
     const props = { config: createFixtureConfig(), isPristine: false };
     const wrapper = createWrapper({ props });
-    const saveButtonWrapper = wrapper.find('[data-selector="saveButton"]');
-    saveButtonWrapper.trigger('click');
+    const saveConfigButtonWrapper = wrapper.find('[data-selector="saveConfigButton"]');
+    saveConfigButtonWrapper.trigger('click');
 
-    expect(wrapper.emitted().saved).toBeTruthy();
+    expect(wrapper.emitted('save')).toBeTruthy();
   });
 
   it('should emit an event when config is deleted', async () => {
     const props = { config: createFixtureConfig() };
     const wrapper = createWrapper({ props });
-    const deleteButtonWrapper = wrapper.find('[data-selector="deleteButton"]');
-    deleteButtonWrapper.trigger('click');
+    const deleteConfigButtonWrapper = wrapper.find('[data-selector="deleteConfigButton"]');
+    deleteConfigButtonWrapper.trigger('click');
 
-    expect(wrapper.emitted().deleted).toBeTruthy();
+    expect(wrapper.emitted('delete')).toBeTruthy();
   });
 
-  it('should emit an event when form is submitted', async () => {
+  it('should emit an event when db has to be saved', async () => {
     const props = { config: createFixtureConfig() };
     const wrapper = createWrapper({ props });
-    wrapper.find('form').trigger('submit');
+    wrapper.find('[data-selector="saveDbButton"]').trigger('click');
 
-    expect(wrapper.emitted().submitted).toBeTruthy();
+    expect(wrapper.emitted('save')).toBeTruthy();
+  });
+
+  it('should emit an event when db has to be restored', async () => {
+    const props = { config: createFixtureConfig() };
+    const wrapper = createWrapper({ props });
+    wrapper.find('[data-selector="restoreDbButton"]').trigger('click');
+
+    expect(wrapper.emitted('restore')).toBeTruthy();
   });
 
   it('should not display clear password as default', () => {

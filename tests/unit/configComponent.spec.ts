@@ -36,13 +36,13 @@ describe('ConfigComponent', () => {
     const wrapper = createWrapper();
     wrapper.find('.config').trigger('click');
 
-    expect(wrapper.emitted('selected')).toBeTruthy();
+    expect(wrapper.emitted('select')).toBeTruthy();
   });
 
   it('should emit an event when delete button has been clicked', () => {
     const wrapper = createWrapper();
     wrapper.find('button').trigger('click');
 
-    expect(wrapper.emitted('deleted')).toBeTruthy();
+    expect(wrapper.emitted('delete')).toBeTruthy();
   });
 });

@@ -1,22 +1,22 @@
 <template>
-  <form @submit.prevent="submit">
+  <form @submit.prevent>
     <div class="inputs">
       <fieldset>
         <label>
           <span>Nom de la configuration</span>
-          <input data-selector="name" type="text" placeholder="Serveur de mon app" :value="config.name" @input="handleUpdated" />
+          <input data-selector="name" type="text" placeholder="Serveur de mon app" :value="config.name" @input="handleUpdateConfig" />
         </label>
         <label required>
           <span>Adresse IP du serveur</span>
-          <input data-selector="serverIp" type="text" placeholder="123.456.78.9" :value="config.serverIp" @input="handleUpdated" />
+          <input data-selector="serverIp" type="text" placeholder="123.456.78.9" :value="config.serverIp" @input="handleUpdateConfig" />
         </label>
         <label>
           <span>Port ssh du serveur</span>
-          <input data-selector="serverSshPort" type="text" placeholder="22" :value="config.serverSshPort" @input="handleUpdated" />
+          <input data-selector="serverSshPort" type="text" placeholder="22" :value="config.serverSshPort" @input="handleUpdateConfig" />
         </label>
         <label>
           <span>Nom de l'utilisateur du serveur</span>
-          <input data-selector="serverUsername" type="text" placeholder="john" :value="config.serverUsername" @input="handleUpdated" />
+          <input data-selector="serverUsername" type="text" placeholder="john" :value="config.serverUsername" @input="handleUpdateConfig" />
         </label>
         <label class="indented">
           <span>Mot de passe de l'utilisateur du serveur</span>
@@ -26,7 +26,7 @@
               :type="isServerPasswordVisible ? 'text' : 'password'"
               placeholder="password"
               :value="config.serverPassword"
-              @input="handleUpdated"
+              @input="handleUpdateConfig"
             />
             <Eye
               class="icon"
@@ -47,7 +47,7 @@
               type="text"
               placeholder="/home/john/.ssh/id_rsa"
               :value="config.sshPrivateKeyPath"
-              @input="handleUpdated"
+              @input="handleUpdateConfig"
             />
             <button type="button" @click.prevent="selectKeyPath">Parcourir</button>
           </div>
@@ -57,15 +57,15 @@
       <fieldset>
         <label>
           <span>Port de la base de données</span>
-          <input data-selector="dbPort" type="text" placeholder="3306" :value="config.dbPort" @input="handleUpdated" />
+          <input data-selector="dbPort" type="text" placeholder="3306" :value="config.dbPort" @input="handleUpdateConfig" />
         </label>
         <label required>
           <span>Nom de la base de données</span>
-          <input data-selector="dbName" type="text" placeholder="superbase" :value="config.dbName" @input="handleUpdated" />
+          <input data-selector="dbName" type="text" placeholder="superbase" :value="config.dbName" @input="handleUpdateConfig" />
         </label>
         <label>
           <span>Nom de l'administrateur de la base de données</span>
-          <input data-selector="dbUsername" type="text" placeholder="db_admin" :value="config.dbUsername" @input="handleUpdated" />
+          <input data-selector="dbUsername" type="text" placeholder="db_admin" :value="config.dbUsername" @input="handleUpdateConfig" />
         </label>
         <label>
           <span>Mot de passe de la base de données</span>
@@ -75,7 +75,7 @@
               :type="isDbPasswordVisible ? 'text' : 'password'"
               placeholder="password"
               :value="config.dbPassword"
-              @input="handleUpdated"
+              @input="handleUpdateConfig"
             />
             <Eye
               class="icon"
@@ -89,11 +89,16 @@
     </div>
 
     <div class="config-actions">
-      <button data-selector="saveButton" type="button" :disabled="isPristine" @click="handleSaved">Sauvegarder</button>
-      <button data-selector="deleteButton" type="button" @click="handleDeleted">Supprimer</button>
+      <button data-selector="saveConfigButton" type="button" :disabled="isPristine" @click="handleSaveConfig">
+        Sauvegarder la configuration
+      </button>
+      <button data-selector="deleteConfigButton" type="button" @click="handleDeleteConfig">
+        Supprimer la configuration
+      </button>
     </div>
 
-    <button type="submit" :disabled="!canSubmit">Connexion</button>
+    <button data-selector="saveDbButton" type="button" :disabled="!canSubmit" @click="handleSaveDb">Sauvegarder la base de données</button>
+    <button data-selector="restoreDbButton" type="button" :disabled="!canSubmit" @click="handleRestoreDb">Restaurer la base de données</button>
   </form>
 </template>
 
@@ -146,25 +151,29 @@ export default {
     selectKeyPath() {
       const keyPath = browseForSshPrivateKeyPath();
 
-      this.$emit('updated', { sshPrivateKeyPath: keyPath });
+      this.$emit('update-config', { sshPrivateKeyPath: keyPath });
     },
 
-    handleUpdated(event) {
+    handleUpdateConfig(event) {
       const property = event.target.getAttribute('data-selector');
       const { value } = event.target;
-      this.$emit('updated', { [property]: value });
+      this.$emit('update-config', { [property]: value });
     },
 
-    handleSaved() {
-      this.$emit('saved');
+    handleSaveConfig() {
+      this.$emit('save');
     },
 
-    handleDeleted() {
-      this.$emit('deleted');
+    handleDeleteConfig() {
+      this.$emit('delete');
     },
 
-    submit() {
-      this.$emit('submitted');
+    handleSaveDb() {
+      this.$emit('save');
+    },
+
+    handleRestoreDb() {
+      this.$emit('restore');
     },
   },
 

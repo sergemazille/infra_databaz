@@ -1,7 +1,7 @@
 <template>
-  <div class="config" :class="{ isSelected }" @click="handleSelected">
+  <div class="config" :class="{ isSelected }" @click="handleSelectConfig">
     <span v-text="config.name" />
-    <button v-text="'&times;'" @click.stop="handleDeleted" />
+    <button v-text="'&times;'" @click.stop="handleDeleteConfig" />
   </div>
 </template>
 
@@ -22,12 +22,12 @@ export default {
   },
 
   methods: {
-    handleSelected() {
-      this.$emit('selected');
+    handleSelectConfig() {
+      this.$emit('select');
     },
 
-    handleDeleted() {
-      this.$emit('deleted');
+    handleDeleteConfig() {
+      this.$emit('delete');
     },
   },
 };

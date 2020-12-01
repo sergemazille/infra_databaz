@@ -53,17 +53,19 @@ describe('ConfigsManager', () => {
     expect(wrapper.vm.selectedConfigUuid).toBeFalsy();
   });
 
-  it("should dispatch selected config's uuid", () => {
+  it("should dispatch selected config's uuid", async () => {
     const firstConfig = createFixtureConfig({ uuid: '12345' });
     const secondConfig = createFixtureConfig({ uuid: '54321' });
-    const props = {
-      configs: [firstConfig, secondConfig],
-    };
+    const props = { configs: [firstConfig, secondConfig] };
     const wrapper = createWrapper({ props });
+    await wrapper.vm.$nextTick();
     jest.spyOn(wrapper.vm.$store, 'dispatch');
 
     const firstConfigWrapper = wrapper.findComponent(ConfigComponent);
-    firstConfigWrapper.trigger('selected');
+    firstConfigWrapper.trigger('select');
+    await wrapper.vm.$nextTick();
+    await wrapper.vm.$nextTick();
+    await wrapper.vm.$nextTick();
 
     expect(wrapper.vm.$store.dispatch).toHaveBeenCalledTimes(1);
     expect(wrapper.vm.$store.dispatch).toHaveBeenCalledWith('setSelectedConfigUuid', '12345');
@@ -77,7 +79,7 @@ describe('ConfigsManager', () => {
     jest.spyOn(wrapper.vm.$store, 'dispatch');
 
     const firstConfigWrapper = wrapper.findComponent(ConfigComponent);
-    firstConfigWrapper.trigger('deleted');
+    firstConfigWrapper.trigger('delete');
 
     expect(store.dispatch).toHaveBeenCalledTimes(1);
     expect(store.dispatch).toHaveBeenCalledWith('deleteConfigByUuid', '1');
@@ -179,7 +181,7 @@ describe('ConfigsManager', () => {
     await wrapper.vm.$nextTick();
 
     const editorWrapper = wrapper.findComponent(ConfigEditor);
-    editorWrapper.trigger('deleted');
+    editorWrapper.trigger('delete');
 
     expect(wrapper.vm.$store.dispatch).toHaveBeenCalledTimes(2); // set default selected + delete event
     expect(wrapper.vm.$store.dispatch).toHaveBeenCalledWith('deleteConfigByUuid', '12345');
