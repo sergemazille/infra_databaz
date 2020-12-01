@@ -34,7 +34,7 @@ import { mapGetters } from 'vuex';
 import { isEqual } from 'lodash';
 import { createEmptyConfig } from '@/utils/configs.ts';
 import { recoverConfigByUuid } from '@/utils/localstorage.ts';
-import { saveDb } from '@/utils/system.ts';
+import { restoreDb, saveDb } from '@/utils/system.ts';
 
 export default {
   components: {
@@ -108,7 +108,13 @@ export default {
       saveDb(this.selectedConfig);
     },
 
-    restoreDbWithSelectedConfig() {},
+    restoreDbWithSelectedConfig() {
+      if (!this.selectedConfig) {
+        return;
+      }
+
+      restoreDb(this.selectedConfig);
+    },
   },
 
   created() {

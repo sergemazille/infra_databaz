@@ -5,12 +5,13 @@ import Controller from '@/components/Controller.vue';
 import { createFixtureConfig, refFixtureConfig } from '@/utils/configs';
 import { shallowMount } from '@vue/test-utils';
 import store from '@/store/index';
-import { saveDb } from '@/utils/system.ts';
+import { restoreDb, saveDb } from '@/utils/system.ts';
 
 jest.mock('@/utils/system.ts', () => {
   return {
     browseForSshPrivateKeyPath: jest.fn(),
     saveDb: jest.fn(),
+    restoreDb: jest.fn(),
   };
 });
 
@@ -207,5 +208,25 @@ describe('Controller', () => {
 
     expect(saveDb).toHaveBeenCalledTimes(1);
     expect(saveDb).toHaveBeenCalledWith(selectedConfig);
+  });
+
+  it('should not call system method to restore db if no config is selected', () => {
+    const wrapper = createWrapper();
+    wrapper.vm.restoreDbWithSelectedConfig();
+
+    expect(restoreDb).not.toHaveBeenCalled();
+  });
+
+  it('should call system method to restore db with selected config', async () => {
+    const wrapper = createWrapper();
+    const selectedConfig = createFixtureConfig({ uuid: '12345' });
+    store.commit('storeConfigs', [selectedConfig]);
+    store.commit('storeSelectedConfigUuid', '12345');
+    await wrapper.vm.$nextTick();
+    const editorWrapper = wrapper.findComponent(ConfigEditor);
+    editorWrapper.trigger('restoredb');
+
+    expect(restoreDb).toHaveBeenCalledTimes(1);
+    expect(restoreDb).toHaveBeenCalledWith(selectedConfig);
   });
 });

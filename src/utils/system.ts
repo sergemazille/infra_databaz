@@ -55,3 +55,11 @@ export const saveDb = (config: Config) => {
     })
     .catch(console.log);
 };
+
+export const restoreDb = (config: Config) => {
+  connect(config)
+    .then(() => {
+      console.log('=== ssh.isConnected() ===>', ssh.isConnected());
+    })
+    .catch(console.log);
+};
