@@ -1,14 +1,16 @@
 import * as configUtils from '@/utils/configs';
 import ConfigComponent from '@/components/Config.vue';
 import ConfigEditor from '@/components/ConfigEditor.vue';
-import ConfigsManager from '@/components/ConfigsManager.vue';
+import Controller from '@/components/Controller.vue';
 import { createFixtureConfig, refFixtureConfig } from '@/utils/configs';
 import { shallowMount } from '@vue/test-utils';
 import store from '@/store/index';
+import { saveDb } from '@/utils/system.ts';
 
 jest.mock('@/utils/system.ts', () => {
   return {
     browseForSshPrivateKeyPath: jest.fn(),
+    saveDb: jest.fn(),
   };
 });
 
@@ -17,7 +19,7 @@ jest.spyOn(configUtils, 'createEmptyConfig').mockImplementation(() => {
 });
 
 const createWrapper = (opts: any = {}) => {
-  return shallowMount(ConfigsManager, {
+  return shallowMount(Controller, {
     global: {
       plugins: [store],
     },
@@ -26,7 +28,7 @@ const createWrapper = (opts: any = {}) => {
   });
 };
 
-describe('ConfigsManager', () => {
+describe('Controller', () => {
   afterEach(() => {
     jest.clearAllMocks();
     store.commit('storeConfigs', []);
@@ -88,26 +90,26 @@ describe('ConfigsManager', () => {
   it('should give selected config component the correct isSelected props', async () => {
     expect.assertions(1);
 
-    const testConfig = createFixtureConfig({ uuid: '12345' });
+    const selectedConfig = createFixtureConfig({ uuid: '12345' });
     const randomConfig = createFixtureConfig();
-    const configs = [testConfig, randomConfig];
+    const configs = [selectedConfig, randomConfig];
 
     const props = { configs };
     const wrapper = createWrapper({ props });
     store.commit('storeConfigs', configs);
     store.commit('storeSelectedConfigUuid', '12345');
     await wrapper.vm.$nextTick();
-    const testConfigWrapper = wrapper.findComponent(ConfigComponent);
+    const selectedConfigWrapper = wrapper.findComponent(ConfigComponent);
 
-    expect(testConfigWrapper.vm.isSelected).toBe(true);
+    expect(selectedConfigWrapper.vm.isSelected).toBe(true);
   });
 
   it('should give config editor correct selected config properties', async () => {
     expect.assertions(2);
 
     const wrapper = createWrapper();
-    const testConfig = createFixtureConfig({ uuid: '12345', dbPort: '3307', dbUsername: 'luke' });
-    store.commit('storeConfigs', [testConfig]);
+    const selectedConfig = createFixtureConfig({ uuid: '12345', dbPort: '3307', dbUsername: 'luke' });
+    store.commit('storeConfigs', [selectedConfig]);
     store.commit('storeSelectedConfigUuid', '12345');
     await wrapper.vm.$nextTick();
     const configEditorWrapper = wrapper.findComponent(ConfigEditor);
@@ -185,5 +187,25 @@ describe('ConfigsManager', () => {
 
     expect(wrapper.vm.$store.dispatch).toHaveBeenCalledTimes(2); // set default selected + delete event
     expect(wrapper.vm.$store.dispatch).toHaveBeenCalledWith('deleteConfigByUuid', '12345');
+  });
+
+  it('should not call system method to save db if no config is selected', () => {
+    const wrapper = createWrapper();
+    wrapper.vm.saveDbWithSelectedConfig();
+
+    expect(saveDb).not.toHaveBeenCalled();
+  });
+
+  it('should call system method to save db with selected config', async () => {
+    const wrapper = createWrapper();
+    const selectedConfig = createFixtureConfig({ uuid: '12345' });
+    store.commit('storeConfigs', [selectedConfig]);
+    store.commit('storeSelectedConfigUuid', '12345');
+    await wrapper.vm.$nextTick();
+    const editorWrapper = wrapper.findComponent(ConfigEditor);
+    editorWrapper.trigger('savedb');
+
+    expect(saveDb).toHaveBeenCalledTimes(1);
+    expect(saveDb).toHaveBeenCalledWith(selectedConfig);
   });
 });

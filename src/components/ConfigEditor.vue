@@ -171,11 +171,11 @@ export default {
     },
 
     handleSaveDb() {
-      this.$emit('save');
+      this.$emit('savedb');
     },
 
     handleRestoreDb() {
-      this.$emit('restore');
+      this.$emit('restoredb');
     },
   },
 

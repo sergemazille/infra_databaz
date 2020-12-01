@@ -20,6 +20,8 @@
       @update="patchSelectedConfig"
       @save="saveSelectedConfig"
       @delete="deleteConfig(selectedConfig.uuid)"
+      @savedb="saveDbWithSelectedConfig"
+      @restoredb="restoreDbWithSelectedConfig"
     />
   </div>
 </template>
@@ -32,6 +34,7 @@ import { mapGetters } from 'vuex';
 import { isEqual } from 'lodash';
 import { createEmptyConfig } from '@/utils/configs.ts';
 import { recoverConfigByUuid } from '@/utils/localstorage.ts';
+import { saveDb } from '@/utils/system.ts';
 
 export default {
   components: {
@@ -96,6 +99,16 @@ export default {
       this.$store.dispatch('saveConfig', newConfig);
       this.selectConfig(newConfig.uuid);
     },
+
+    saveDbWithSelectedConfig() {
+      if (!this.selectedConfig) {
+        return;
+      }
+
+      saveDb(this.selectedConfig);
+    },
+
+    restoreDbWithSelectedConfig() {},
   },
 
   created() {

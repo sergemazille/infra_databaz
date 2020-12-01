@@ -126,7 +126,7 @@ describe('ConfigEditor', () => {
     const wrapper = createWrapper({ props });
     wrapper.find('[data-selector="saveDbButton"]').trigger('click');
 
-    expect(wrapper.emitted('save')).toBeTruthy();
+    expect(wrapper.emitted('savedb')).toBeTruthy();
   });
 
   it('should emit an event when db has to be restored', async () => {
@@ -134,7 +134,7 @@ describe('ConfigEditor', () => {
     const wrapper = createWrapper({ props });
     wrapper.find('[data-selector="restoreDbButton"]').trigger('click');
 
-    expect(wrapper.emitted('restore')).toBeTruthy();
+    expect(wrapper.emitted('restoredb')).toBeTruthy();
   });
 
   it('should not display clear password as default', () => {

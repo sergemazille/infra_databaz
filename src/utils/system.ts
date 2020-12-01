@@ -47,3 +47,11 @@ const connect = (config: Config) => {
       });
   });
 };
+
+export const saveDb = (config: Config) => {
+  connect(config)
+    .then(() => {
+      console.log('=== ssh.isConnected() ===>', ssh.isConnected());
+    })
+    .catch(console.log);
+};

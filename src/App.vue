@@ -1,17 +1,17 @@
 <template>
   <div id="app">
     <h1>DataBaZ</h1>
-    <ConfigsManager v-bind="{ configs }" />
+    <Controller v-bind="{ configs }" />
   </div>
 </template>
 
 <script>
-import ConfigsManager from '@/components/ConfigsManager';
+import Controller from '@/components/Controller';
 import { mapGetters } from 'vuex';
 
 export default {
   components: {
-    ConfigsManager,
+    Controller,
   },
 
   computed: {
