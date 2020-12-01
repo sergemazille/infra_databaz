@@ -49,7 +49,7 @@
               :value="config.sshPrivateKeyPath"
               @input="handleUpdateConfig"
             />
-            <button type="button" @click.prevent="selectKeyPath">Parcourir</button>
+            <button data-selector="sshKeyBrowseButton" type="button" @click.prevent="selectKeyPath">Parcourir</button>
           </div>
         </label>
       </fieldset>
@@ -98,7 +98,9 @@
     </div>
 
     <button data-selector="saveDbButton" type="button" :disabled="!canSubmit" @click="handleSaveDb">Sauvegarder la base de données</button>
-    <button data-selector="restoreDbButton" type="button" :disabled="!canSubmit" @click="handleRestoreDb">Restaurer la base de données</button>
+    <button data-selector="restoreDbButton" type="button" :disabled="!canSubmit" @click="handleRestoreDb">
+      Restaurer la base de données
+    </button>
   </form>
 </template>
 
@@ -151,13 +153,13 @@ export default {
     selectKeyPath() {
       const keyPath = browseForSshPrivateKeyPath();
 
-      this.$emit('update-config', { sshPrivateKeyPath: keyPath });
+      this.$emit('update', { sshPrivateKeyPath: keyPath });
     },
 
     handleUpdateConfig(event) {
       const property = event.target.getAttribute('data-selector');
       const { value } = event.target;
-      this.$emit('update-config', { [property]: value });
+      this.$emit('update', { [property]: value });
     },
 
     handleSaveConfig() {

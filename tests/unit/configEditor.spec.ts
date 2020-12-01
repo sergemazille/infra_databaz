@@ -4,7 +4,7 @@ import { shallowMount } from '@vue/test-utils';
 
 jest.mock('@/utils/system.ts', () => {
   return {
-    browseForSshPrivateKeyPath: jest.fn(),
+    browseForSshPrivateKeyPath: jest.fn().mockReturnValue('/id_rsa'),
   };
 });
 
@@ -73,8 +73,8 @@ describe('ConfigEditor', () => {
     await dbUsernameWrapper.setValue('db_username');
     await dbPasswordWrapper.setValue('db_password');
 
-    expect(wrapper.emitted('update-config').length).toBe(9);
-    expect(wrapper.emitted('update-config')).toEqual([
+    expect(wrapper.emitted('update').length).toBe(9);
+    expect(wrapper.emitted('update')).toEqual([
       [{ name: 'abcd' }],
       [{ serverIp: '1.2.3.4' }],
       [{ serverUsername: 'john' }],
@@ -170,5 +170,15 @@ describe('ConfigEditor', () => {
     const dbPasswordInputWrapper = wrapper.find('input[data-selector="dbPassword"]');
 
     expect(dbPasswordInputWrapper.attributes('type')).toBe('text');
+  });
+
+  it('should emit an event when a file is chosen for ssh private key', () => {
+    const props = { config: createFixtureConfig() };
+    const wrapper = createWrapper({ props });
+    const browseBtnWrapper = wrapper.find('[data-selector="sshKeyBrowseButton"]');
+    browseBtnWrapper.trigger('click');
+
+    expect(wrapper.emitted('update').length).toBe(1);
+    expect(wrapper.emitted('update')).toEqual([[{ sshPrivateKeyPath: '/id_rsa' }]]);
   });
 });
