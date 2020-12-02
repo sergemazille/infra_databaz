@@ -3,12 +3,10 @@
 </template>
 
 <script>
-import { Notification } from '@/domain/Notification.ts';
-
 export default {
   props: {
     notification: {
-      type: Notification,
+      type: Object,
       required: true,
     },
   },
