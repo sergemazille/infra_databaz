@@ -49,13 +49,13 @@ const importDbFile = (remoteDumpPath: string) => {
           },
         ],
       })
-      .then((file: any) => {
+      .then(async (file: any) => {
         if (file.canceled) {
           return resolve();
         }
 
         // copy file
-        ssh.getFile(file.filePath.toString(), `${remoteDumpPath}`);
+        await ssh.getFile(file.filePath.toString(), `${remoteDumpPath}`);
         return resolve();
       })
       .catch((error: any) => {
@@ -129,6 +129,9 @@ export const saveDb = (config: Config) => {
         message: `Problème lors de l'opération : ${error}`,
         type: NotificationType.ERROR,
       });
+    })
+    .finally(() => {
+      ssh.dispose();
     });
 };
 
