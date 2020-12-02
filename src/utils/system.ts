@@ -18,7 +18,7 @@ export const browseForSshPrivateKeyPath = () => {
   const home = getUserHomePath();
   const defaultKeyPath = path.join(home, '.ssh');
 
-  const [keyPath] = dialog.showOpenDialogSync({
+  const keyPath = dialog.showOpenDialogSync({
     properties: ['openFile', 'showHiddenFiles'],
     defaultPath: defaultKeyPath,
     buttonLabel: 'Choisir',
