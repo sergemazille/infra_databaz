@@ -1,4 +1,6 @@
 import { Config } from '@/domain/Config.ts';
+import store from '@/store/index.ts';
+import { Type as NotificationType } from '@/domain/Notification.ts';
 
 const os = window.require('os');
 const {
@@ -53,7 +55,13 @@ export const saveDb = (config: Config) => {
     .then(() => {
       console.log('=== ssh.isConnected() ===>', ssh.isConnected());
     })
-    .catch(console.log);
+    .catch(error => {
+      const notification = {
+        message: `Problème de connexion à la base de données : ${error}`,
+        type: NotificationType.ERROR,
+      };
+      store.dispatch('setNotification', notification);
+    });
 };
 
 export const restoreDb = (config: Config) => {
@@ -61,5 +69,11 @@ export const restoreDb = (config: Config) => {
     .then(() => {
       console.log('=== ssh.isConnected() ===>', ssh.isConnected());
     })
-    .catch(console.log);
+    .catch(error => {
+      const notification = {
+        message: `Problème de connexion à la base de données : ${error}`,
+        type: NotificationType.ERROR,
+      };
+      store.dispatch('setNotification', notification);
+    });
 };
