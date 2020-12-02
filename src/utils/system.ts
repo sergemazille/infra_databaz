@@ -32,7 +32,7 @@ const generateSqlFileNameFromDate = () => {
   return `${now}.sql`;
 };
 
-const importDbFile = (remoteDumpPath: string) => {
+const downloadDbFile = (remoteDumpPath: string) => {
   const defaultFileName = generateSqlFileNameFromDate();
   const userHomePath = getUserHomePath();
 
@@ -110,7 +110,7 @@ export const saveDb = (config: Config) => {
     })
     .then(() => {
       // save local file
-      return importDbFile(remoteDumpPath);
+      return downloadDbFile(remoteDumpPath);
     })
     .then(() => {
       // remove remote dump
