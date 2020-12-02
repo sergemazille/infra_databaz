@@ -106,6 +106,9 @@ describe('Store', () => {
     const store = createVuexStore();
 
     store.dispatch('setNotification', notification);
+
+    expect(store.getters.notification).toEqual(notification);
+
     jest.runAllTimers();
 
     expect(store.getters.notification).toEqual(null);
