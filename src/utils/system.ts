@@ -1,6 +1,7 @@
 import { Config } from '@/domain/Config.ts';
 import store from '@/store/index.ts';
 import { Type as NotificationType } from '@/domain/Notification.ts';
+import { formatedNow } from '@/utils/date.ts';
 
 const os = window.require('os');
 const {
@@ -51,9 +52,28 @@ const connect = (config: Config) => {
 };
 
 export const saveDb = (config: Config) => {
+  const { dbName, dbUsername, dbPassword } = config;
+
   connect(config)
     .then(() => {
-      console.log('=== ssh.isConnected() ===>', ssh.isConnected());
+      const tempPath = app.getPath('temp');
+      const dumpName = `${formatedNow()}.sql`;
+      const dumpCommand = `mysqldump -u ${dbUsername} -p${dbPassword} ${dbName} > ${tempPath}/${dumpName}`;
+
+      return ssh.execCommand(dumpCommand);
+    })
+    .then(() => {
+      // saveFile();
+    })
+    .then(() => {
+      // remove dump;
+    })
+    .then(() => {
+      const notification = {
+        message: 'Opération terminée avec succès',
+        type: NotificationType.SUCCESS,
+      };
+      store.dispatch('setNotification', notification);
     })
     .catch(error => {
       const notification = {
