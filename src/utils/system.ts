@@ -2,13 +2,14 @@ import { Config } from '@/domain/Config.ts';
 import store from '@/store/index.ts';
 import { Type as NotificationType } from '@/domain/Notification.ts';
 import { formatedNow } from '@/utils/date.ts';
+import { Ssh } from '@/utils/ssh.ts';
 
 const {
   remote: { app, dialog },
 } = window.require('electron');
 const path = window.require('path');
-const { NodeSSH } = window.require('node-ssh');
-const ssh = new NodeSSH();
+
+const ssh = new Ssh();
 
 const getUserHomePath = () => {
   return app.getPath('home');
@@ -55,38 +56,12 @@ const downloadDbFile = (remoteDumpPath: string) => {
         }
 
         // copy file
-        await ssh.getFile(file.filePath.toString(), `${remoteDumpPath}`);
+        await ssh.getFile(remoteDumpPath, file.filePath.toString());
         return resolve();
       })
       .catch((error: any) => {
         store.dispatch('setNotification', {
           message: `Problème lors de la récupération de la sauvegarde : ${error}`,
-          type: NotificationType.ERROR,
-        });
-
-        return reject();
-      });
-  });
-};
-
-const connect = (config: Config) => {
-  const { serverIp, serverSshPort, serverUsername, serverPassword, sshPrivateKeyPath } = config;
-
-  return new Promise((resolve, reject) => {
-    ssh
-      .connect({
-        host: serverIp,
-        port: serverSshPort,
-        username: serverUsername,
-        password: serverPassword,
-        privateKey: sshPrivateKeyPath,
-      })
-      .then(() => {
-        return resolve(ssh);
-      })
-      .catch((error: any) => {
-        store.dispatch('setNotification', {
-          message: `Problème de connexion à la base de données : ${error}`,
           type: NotificationType.ERROR,
         });
 
@@ -101,49 +76,33 @@ export const saveDb = (config: Config) => {
   const remoteTempPath = app.getPath('temp');
   const remoteDumpPath = `${remoteTempPath}/${dumpName}`;
 
-  connect(config)
-    .then(() => {
-      // create remote dump
-      const dumpCommand = `mysqldump -u ${dbUsername} -p${dbPassword} ${dbName} > ${remoteDumpPath}`;
+  // try connection
+  // ssh.checkConnection()
 
-      return ssh.execCommand(dumpCommand);
-    })
-    .then(() => {
-      // save local file
-      return downloadDbFile(remoteDumpPath);
-    })
-    .then(() => {
-      // remove remote dump
-      const dumpCommand = `rm ${remoteDumpPath}`;
+  // create remote dump
+  const dumpCommand = `mysqldump -u ${dbUsername} -p${dbPassword} ${dbName} > ${remoteDumpPath}`;
+  return ssh.execCommand(dumpCommand);
 
-      return ssh.execCommand(dumpCommand);
-    })
-    .then(() => {
-      store.dispatch('setNotification', {
-        message: 'Opération terminée avec succès',
-        type: NotificationType.SUCCESS,
-      });
-    })
-    .catch(error => {
-      store.dispatch('setNotification', {
-        message: `Problème lors de l'opération : ${error}`,
-        type: NotificationType.ERROR,
-      });
-    })
-    .finally(() => {
-      ssh.dispose();
-    });
+  // save local file
+  return downloadDbFile(remoteDumpPath);
+
+  // remove remote dump
+  const dumpCommand = `rm ${remoteDumpPath}`;
+  return ssh.execCommand(dumpCommand);
+
+  // success notification
+  store.dispatch('setNotification', {
+    message: 'Opération terminée avec succès',
+    type: NotificationType.SUCCESS,
+  });
+
+  // catch error & error notification
+  store.dispatch('setNotification', {
+    message: `Problème lors de l'opération : ${error}`,
+    type: NotificationType.ERROR,
+  });
 };
 
 export const restoreDb = (config: Config) => {
-  connect(config)
-    .then(() => {
-      console.log('=== ssh.isConnected() ===>', ssh.isConnected());
-    })
-    .catch(error => {
-      store.dispatch('setNotification', {
-        message: `Problème de connexion à la base de données : ${error}`,
-        type: NotificationType.ERROR,
-      });
-    });
+  config;
 };
