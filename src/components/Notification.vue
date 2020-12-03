@@ -24,5 +24,9 @@ div {
   .ERROR {
     background-color: red;
   }
+
+  .INFO {
+    background-color: blue;
+  }
 }
 </style>

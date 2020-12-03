@@ -10,6 +10,12 @@ const path = window.require('path');
 const { NodeSSH } = window.require('node-ssh');
 const ssh = new NodeSSH();
 
+enum Result {
+  CANCELED = 'CANCELED',
+  SUCCESS = 'SUCCESS',
+  ERROR = 'ERROR',
+}
+
 const getUserHomePath = () => {
   return app.getPath('home');
 };
@@ -32,7 +38,7 @@ const generateSqlFileNameFromDate = () => {
   return `${now}.sql`;
 };
 
-const downloadDbFile = (remoteDumpPath: string) => {
+const downloadDbFile = (remoteDumpPath: string): Promise<Result> => {
   const defaultFileName = generateSqlFileNameFromDate();
   const userHomePath = getUserHomePath();
 
@@ -51,12 +57,12 @@ const downloadDbFile = (remoteDumpPath: string) => {
       })
       .then(async (file: any) => {
         if (file.canceled) {
-          return resolve();
+          return resolve(Result.CANCELED);
         }
 
         // copy file
-        await ssh.getFile(file.filePath.toString(), `${remoteDumpPath}`);
-        return resolve();
+        await ssh.getFile(file.filePath.toString(), remoteDumpPath.toString());
+        return resolve(Result.SUCCESS);
       })
       .catch((error: any) => {
         store.dispatch('setNotification', {
@@ -64,7 +70,7 @@ const downloadDbFile = (remoteDumpPath: string) => {
           type: NotificationType.ERROR,
         });
 
-        return reject();
+        return reject(Result.ERROR);
       });
   });
 };
@@ -98,7 +104,7 @@ const connect = (config: Config) => {
 export const saveDb = (config: Config) => {
   const { dbName, dbUsername, dbPassword } = config;
   const dumpName = generateSqlFileNameFromDate();
-  const remoteTempPath = app.getPath('temp');
+  const remoteTempPath = '/tmp';
   const remoteDumpPath = `${remoteTempPath}/${dumpName}`;
 
   connect(config)
@@ -112,17 +118,25 @@ export const saveDb = (config: Config) => {
       // save local file
       return downloadDbFile(remoteDumpPath);
     })
+    .then((result: Result) => {
+      const notification =
+        result === Result.CANCELED
+          ? {
+              message: 'Opération annulée',
+              type: NotificationType.INFO,
+            }
+          : {
+              message: 'Opération terminée avec succès',
+              type: NotificationType.SUCCESS,
+            };
+
+      store.dispatch('setNotification', notification);
+    })
     .then(() => {
       // remove remote dump
       const dumpCommand = `rm ${remoteDumpPath}`;
 
       return ssh.execCommand(dumpCommand);
-    })
-    .then(() => {
-      store.dispatch('setNotification', {
-        message: 'Opération terminée avec succès',
-        type: NotificationType.SUCCESS,
-      });
     })
     .catch(error => {
       store.dispatch('setNotification', {
