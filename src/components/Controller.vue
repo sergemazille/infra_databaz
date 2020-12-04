@@ -137,10 +137,14 @@ export default {
     },
   },
 
-  created() {
-    if (this.configs.length === 1) {
+  updated() {
+    if (!this.selectedConfig) {
       this.selectConfig(this.configs[0].uuid);
     }
+  },
+
+  created() {
+    this.selectConfig(this.configs[0].uuid);
   },
 };
 </script>
