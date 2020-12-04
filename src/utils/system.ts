@@ -182,6 +182,8 @@ export const restoreDb = async (config: Config) => {
 
   // notify
   displaySuccessNotification();
+
+  return Promise.resolve(true);
 };
 
 export const rollback = async (config: Config) => {
@@ -205,4 +207,6 @@ export const rollback = async (config: Config) => {
 
   // notify
   displaySuccessNotification();
+
+  return Promise.resolve(true);
 };

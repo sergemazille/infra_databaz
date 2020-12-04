@@ -17,6 +17,7 @@
       v-if="selectedConfig"
       :config="selectedConfig"
       :isPristine="isSelectedConfigPristine"
+      :showRollbackButton="showRollbackButton(selectedConfig.uuid)"
       @update="patchSelectedConfig"
       @save="saveSelectedConfig"
       @delete="deleteConfig(selectedConfig.uuid)"
@@ -57,7 +58,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters(['selectedConfig']),
+    ...mapGetters(['restoredDbs', 'selectedConfig']),
 
     isSelectedConfigPristine() {
       return isEqual(this.selectedConfig, this.recordedConfig);
@@ -109,20 +110,30 @@ export default {
       saveDb(this.selectedConfig);
     },
 
-    restoreDbWithSelectedConfig() {
+    async restoreDbWithSelectedConfig() {
       if (!this.selectedConfig) {
         return;
       }
 
-      restoreDb(this.selectedConfig);
+      const hasBeenRestored = await restoreDb(this.selectedConfig);
+      if (hasBeenRestored) {
+        this.$store.dispatch('addToRestoredDbs', this.selectedConfig.uuid);
+      }
     },
 
-    rollbackWithSelectedConfig() {
+    async rollbackWithSelectedConfig() {
       if (!this.selectedConfig) {
         return;
       }
 
-      rollback(this.selectedConfig);
+      const hasBeenRollbacked = await rollback(this.selectedConfig);
+      if (hasBeenRollbacked) {
+        this.$store.dispatch('removeFromRestoredDbs', this.selectedConfig.uuid);
+      }
+    },
+
+    showRollbackButton(configUuid) {
+      return this.restoredDbs.includes(configUuid);
     },
   },
 

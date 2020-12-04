@@ -152,9 +152,8 @@ describe('ConfigEditor', () => {
   it('should emit an event when db has to be restored from emergency dump', async () => {
     expect.assertions(1);
 
-    const props = { config: createFixtureConfig() };
+    const props = { config: createFixtureConfig(), showRollbackButton: true };
     const wrapper = createWrapper({ props });
-    wrapper.setData({ showRollbackButton: true });
     await wrapper.vm.$nextTick();
     wrapper.find('[data-selector="rollbackButton"]').trigger('click');
 

@@ -113,4 +113,21 @@ describe('Store', () => {
 
     expect(store.getters.notification).toEqual(null);
   });
+
+  it("should store a config's id for a restored database", () => {
+    const store = createVuexStore();
+
+    store.dispatch('addToRestoredDbs', '12345');
+
+    expect(store.getters.restoredDbs).toContain('12345');
+  });
+
+  it("should unstore a config's id after a rollbacked database", () => {
+    const store = createVuexStore();
+
+    store.state.restoredDbs = ['654'];
+    store.dispatch('removeFromRestoredDbs', '654');
+
+    expect(store.getters.restoredDbs).not.toContain('654');
+  });
 });

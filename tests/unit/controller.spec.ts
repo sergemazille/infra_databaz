@@ -6,6 +6,7 @@ import ConfigEditor from '@/components/ConfigEditor.vue';
 import Controller from '@/components/Controller.vue';
 import { shallowMount } from '@vue/test-utils';
 import store from '@/store/index';
+import { mocked } from 'ts-jest/utils';
 
 jest.mock('@/utils/system.ts', () => {
   return {
@@ -58,6 +59,8 @@ describe('Controller', () => {
   });
 
   it("should dispatch selected config's uuid", async () => {
+    expect.assertions(2);
+
     const firstConfig = createFixtureConfig({ uuid: '12345' });
     const secondConfig = createFixtureConfig({ uuid: '54321' });
     const props = { configs: [firstConfig, secondConfig] };
@@ -176,6 +179,8 @@ describe('Controller', () => {
   });
 
   it('should dispatch delete selected config', async () => {
+    expect.assertions(2);
+
     const configToDelete = createFixtureConfig({ uuid: '12345' });
     const props = { configs: [configToDelete] };
     const wrapper = createWrapper({ props });
@@ -199,6 +204,8 @@ describe('Controller', () => {
   });
 
   it('should call system method to save db with selected config', async () => {
+    expect.assertions(2);
+
     const wrapper = createWrapper();
     const selectedConfig = createFixtureConfig({ uuid: '12345' });
     store.commit('storeConfigs', [selectedConfig]);
@@ -219,6 +226,8 @@ describe('Controller', () => {
   });
 
   it('should call system method to restore db with selected config', async () => {
+    expect.assertions(2);
+
     const wrapper = createWrapper();
     const selectedConfig = createFixtureConfig({ uuid: '12345' });
     store.commit('storeConfigs', [selectedConfig]);
@@ -232,6 +241,8 @@ describe('Controller', () => {
   });
 
   it('should call system method to rollback with selected config', async () => {
+    expect.assertions(2);
+
     const wrapper = createWrapper();
     const selectedConfig = createFixtureConfig({ uuid: '12345' });
     store.commit('storeConfigs', [selectedConfig]);
@@ -242,5 +253,88 @@ describe('Controller', () => {
 
     expect(rollback).toHaveBeenCalledTimes(1);
     expect(rollback).toHaveBeenCalledWith(selectedConfig);
+  });
+
+  it("should store config's id of a database that has been restored", async () => {
+    expect.assertions(2);
+
+    mocked(restoreDb, true).mockResolvedValue(true);
+    const wrapper = createWrapper();
+    jest.spyOn(wrapper.vm.$store, 'dispatch');
+    const selectedConfig = createFixtureConfig({ uuid: '12345' });
+    store.commit('storeConfigs', [selectedConfig]);
+    store.commit('storeSelectedConfigUuid', '12345');
+    await wrapper.vm.$nextTick();
+    const editorWrapper = wrapper.findComponent(ConfigEditor);
+    editorWrapper.trigger('restoredb');
+    await new Promise(resolve => setTimeout(resolve));
+
+    expect(wrapper.vm.$store.dispatch).toHaveBeenCalledTimes(1);
+    expect(restoreDb).toHaveBeenCalledWith(selectedConfig);
+  });
+
+  it("should not store config's id of a database that failed from being restored", async () => {
+    expect.assertions(1);
+
+    mocked(restoreDb, true).mockResolvedValue(false);
+    const wrapper = createWrapper();
+    jest.spyOn(wrapper.vm.$store, 'dispatch');
+    const selectedConfig = createFixtureConfig({ uuid: '12345' });
+    store.commit('storeConfigs', [selectedConfig]);
+    store.commit('storeSelectedConfigUuid', '12345');
+    await wrapper.vm.$nextTick();
+    const editorWrapper = wrapper.findComponent(ConfigEditor);
+    editorWrapper.trigger('restoredb');
+    await new Promise(resolve => setTimeout(resolve));
+
+    expect(wrapper.vm.$store.dispatch).not.toHaveBeenCalled();
+  });
+
+  it('should showRollbackButton return true for the config of a database that has been restored', () => {
+    const wrapper = createWrapper();
+    store.commit('addToRestoredDbs', '6841328');
+
+    expect(wrapper.vm.showRollbackButton('6841328')).toBeTruthy();
+  });
+
+  it('should emit an event when a database has been rollbacked', async () => {
+    expect.assertions(2);
+
+    mocked(rollback, true).mockResolvedValue(true);
+    const wrapper = createWrapper();
+    jest.spyOn(wrapper.vm.$store, 'dispatch');
+    const selectedConfig = createFixtureConfig({ uuid: '3615863' });
+    store.commit('storeConfigs', [selectedConfig]);
+    store.commit('storeSelectedConfigUuid', '3615863');
+
+    wrapper.vm.rollbackWithSelectedConfig();
+    await new Promise(resolve => setTimeout(resolve));
+
+    expect(wrapper.vm.$store.dispatch).toHaveBeenCalledTimes(1);
+    expect(wrapper.vm.$store.dispatch).toHaveBeenCalledWith('removeFromRestoredDbs', '3615863');
+  });
+
+  it('should not emit an event when a database rollback has failed', async () => {
+    expect.assertions(1);
+
+    mocked(rollback, true).mockResolvedValue(false);
+    const wrapper = createWrapper();
+    jest.spyOn(wrapper.vm.$store, 'dispatch');
+    const selectedConfig = createFixtureConfig({ uuid: '456123' });
+    store.commit('storeConfigs', [selectedConfig]);
+    store.commit('storeSelectedConfigUuid', '456123');
+
+    wrapper.vm.rollbackWithSelectedConfig();
+    await new Promise(resolve => setTimeout(resolve));
+
+    expect(wrapper.vm.$store.dispatch).not.toHaveBeenCalled();
+  });
+
+  it('should showRollbackButton return false for the config of a database that has been rollbacked', () => {
+    const wrapper = createWrapper();
+    store.commit('addToRestoredDbs', '4578963');
+    store.commit('removeFromRestoredDbs', '4578963');
+
+    expect(wrapper.vm.showRollbackButton('4578963')).toBeFalsy();
   });
 });

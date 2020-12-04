@@ -8,6 +8,7 @@ export const storeOptions: StoreOptions<any> = {
     configs: [],
     selectedConfigUuid: '',
     notification: null,
+    restoredDbs: [],
   },
 
   mutations: {
@@ -40,6 +41,15 @@ export const storeOptions: StoreOptions<any> = {
 
     removeNotification(state) {
       state.notification = null;
+    },
+
+    addToRestoredDbs(state, configUuid) {
+      state.restoredDbs.push(configUuid);
+    },
+
+    removeFromRestoredDbs(state, configUuid) {
+      const uuidIndex = state.restoredDbs.findIndex((item: string) => item === configUuid);
+      state.restoredDbs.splice(uuidIndex, 1);
     },
   },
 
@@ -91,6 +101,14 @@ export const storeOptions: StoreOptions<any> = {
         commit('removeNotification');
       }, displayDurationInMs);
     },
+
+    addToRestoredDbs({ commit }, configUuid) {
+      commit('addToRestoredDbs', configUuid);
+    },
+
+    removeFromRestoredDbs({ commit }, configUuid) {
+      commit('removeFromRestoredDbs', configUuid);
+    },
   },
 
   getters: {
@@ -98,6 +116,7 @@ export const storeOptions: StoreOptions<any> = {
     configByUuid: state => (configUuid: string) => state.configs.find((config: Config) => config.uuid === configUuid),
     selectedConfig: state => state.configs.find((config: Config) => config.uuid === state.selectedConfigUuid),
     notification: state => state.notification,
+    restoredDbs: state => state.restoredDbs,
   },
 };
 

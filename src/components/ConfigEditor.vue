@@ -129,6 +129,11 @@ export default {
       type: Boolean,
       default: true,
     },
+
+    showRollbackButton: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   computed: {
@@ -143,7 +148,6 @@ export default {
     return {
       isServerPasswordVisible: false,
       isDbPasswordVisible: false,
-      showRollbackButton: false,
     };
   },
 
@@ -181,7 +185,6 @@ export default {
     },
 
     handleRestoreDb() {
-      this.showRollbackButton = true;
       this.$emit('restoredb');
     },
 
