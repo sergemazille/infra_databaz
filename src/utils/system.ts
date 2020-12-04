@@ -1,163 +1,149 @@
 import { Config } from '@/domain/Config.ts';
-import store from '@/store/index.ts';
 import { Type as NotificationType } from '@/domain/Notification.ts';
+import { Ssh } from '@/utils/ssh.ts';
 import { formatedNow } from '@/utils/date.ts';
+import store from '@/store/index.ts';
 
 const {
   remote: { app, dialog },
 } = window.require('electron');
 const path = window.require('path');
-const { NodeSSH } = window.require('node-ssh');
-const ssh = new NodeSSH();
 
-enum Result {
-  CANCELED = 'CANCELED',
-  SUCCESS = 'SUCCESS',
-  ERROR = 'ERROR',
-}
-
-const getUserHomePath = () => {
-  return app.getPath('home');
-};
-
-export const browseForSshPrivateKeyPath = () => {
-  const home = getUserHomePath();
-  const defaultKeyPath = path.join(home, '.ssh');
-
-  const keyPath = dialog.showOpenDialogSync({
-    properties: ['openFile', 'showHiddenFiles'],
-    defaultPath: defaultKeyPath,
-    buttonLabel: 'Choisir',
-  });
-
-  return keyPath;
-};
+const userHomePath = app.getPath('home');
 
 const generateSqlFileNameFromDate = () => {
   const now = formatedNow();
   return `${now}.sql`;
 };
 
-const downloadDbFile = (remoteDumpPath: string): Promise<Result> => {
-  const defaultFileName = generateSqlFileNameFromDate();
-  const userHomePath = getUserHomePath();
+export const browseForSshPrivateKey = () => {
+  const defaultPath = path.join(userHomePath, '.ssh');
 
-  return new Promise((resolve, reject) => {
-    dialog
-      .showSaveDialog({
-        title: 'Choisir où sauvegarder la base de données',
-        defaultPath: path.join(userHomePath, `/${defaultFileName}`),
-        buttonLabel: 'Enregistrer',
-        filters: [
-          {
-            name: 'Fichiers SQL',
-            extensions: ['sql'],
-          },
-        ],
-      })
-      .then(async (file: any) => {
-        if (file.canceled) {
-          return resolve(Result.CANCELED);
-        }
-
-        // copy file
-        await ssh.getFile(file.filePath.toString(), remoteDumpPath.toString());
-        return resolve(Result.SUCCESS);
-      })
-      .catch((error: any) => {
-        store.dispatch('setNotification', {
-          message: `Problème lors de la récupération de la sauvegarde : ${error}`,
-          type: NotificationType.ERROR,
-        });
-
-        return reject(Result.ERROR);
-      });
+  const keyPath = dialog.showOpenDialogSync({
+    properties: ['openFile', 'showHiddenFiles'],
+    defaultPath,
+    buttonLabel: 'Choisir',
   });
+
+  return keyPath;
 };
 
-const connect = (config: Config) => {
-  const { serverIp, serverSshPort, serverUsername, serverPassword, sshPrivateKeyPath } = config;
+export const browseForDbDestination = () => {
+  const defaultPath = path.join(userHomePath, generateSqlFileNameFromDate());
 
-  return new Promise((resolve, reject) => {
-    ssh
-      .connect({
-        host: serverIp,
-        port: serverSshPort,
-        username: serverUsername,
-        password: serverPassword,
-        privateKey: sshPrivateKeyPath,
-      })
-      .then(() => {
-        return resolve(ssh);
-      })
-      .catch((error: any) => {
-        store.dispatch('setNotification', {
-          message: `Problème de connexion à la base de données : ${error}`,
-          type: NotificationType.ERROR,
-        });
-
-        return reject();
-      });
+  const savePath = dialog.showSaveDialogSync({
+    title: 'Choisir où sauvegarder la base de données',
+    defaultPath,
+    buttonLabel: 'Enregistrer',
+    filters: [
+      {
+        name: 'Fichiers SQL',
+        extensions: ['sql'],
+      },
+    ],
   });
+
+  return savePath;
 };
 
-export const saveDb = (config: Config) => {
+export const browseForDbToRestore = () => {
+  const dbToRestorePath = dialog.showOpenDialogSync({
+    title: 'Choisir la base de données à restaurer',
+    defaultPath: userHomePath,
+    buttonLabel: 'Choisir',
+  });
+
+  return dbToRestorePath;
+};
+
+export const saveDb = async (config: Config) => {
   const { dbName, dbUsername, dbPassword } = config;
   const dumpName = generateSqlFileNameFromDate();
   const remoteTempPath = '/tmp';
-  const remoteDumpPath = `${remoteTempPath}/${dumpName}`;
+  const remoteCopyPath = `${remoteTempPath}/${dumpName}`;
 
-  connect(config)
-    .then(() => {
-      // create remote dump
-      const dumpCommand = `mysqldump -u ${dbUsername} -p${dbPassword} ${dbName} > ${remoteDumpPath}`;
-
-      return ssh.execCommand(dumpCommand);
-    })
-    .then(() => {
-      // save local file
-      return downloadDbFile(remoteDumpPath);
-    })
-    .then((result: Result) => {
-      const notification =
-        result === Result.CANCELED
-          ? {
-              message: 'Opération annulée',
-              type: NotificationType.INFO,
-            }
-          : {
-              message: 'Opération terminée avec succès',
-              type: NotificationType.SUCCESS,
-            };
-
-      store.dispatch('setNotification', notification);
-    })
-    .then(() => {
-      // remove remote dump
-      const dumpCommand = `rm ${remoteDumpPath}`;
-
-      return ssh.execCommand(dumpCommand);
-    })
-    .catch(error => {
-      store.dispatch('setNotification', {
-        message: `Problème lors de l'opération : ${error}`,
-        type: NotificationType.ERROR,
-      });
-    })
-    .finally(() => {
-      ssh.dispose();
+  const connection = new Ssh(config);
+  if (!connection) {
+    store.dispatch('setNotification', {
+      message: `Problème de connexion à la base de données`,
+      type: NotificationType.ERROR,
     });
+    return;
+  }
+
+  // ask for saved database destination
+  const destination = browseForDbDestination();
+
+  if (!destination) {
+    return store.dispatch('setNotification', {
+      message: 'Opération annulée',
+      type: NotificationType.INFO,
+    });
+  }
+
+  // create a dump on remote
+  const dumpDatabase = `mysqldump -u ${dbUsername} -p${dbPassword} ${dbName} > ${remoteCopyPath}`;
+  await connection.exec(dumpDatabase);
+
+  // download the database
+  await connection.downloadFile(remoteCopyPath, destination);
+
+  // remove remote dump
+  const removeDump = `rm ${remoteCopyPath}`;
+  connection.exec(removeDump);
+
+  // success notification
+  store.dispatch('setNotification', {
+    message: 'Opération terminée avec succès',
+    type: NotificationType.SUCCESS,
+  });
 };
 
-export const restoreDb = (config: Config) => {
-  connect(config)
-    .then(() => {
-      console.log('=== ssh.isConnected() ===>', ssh.isConnected());
-    })
-    .catch(error => {
-      store.dispatch('setNotification', {
-        message: `Problème de connexion à la base de données : ${error}`,
-        type: NotificationType.ERROR,
-      });
+export const restoreDb = async (config: Config) => {
+  const { dbName, dbUsername, dbPassword } = config;
+  const tempCopyName = generateSqlFileNameFromDate();
+  const safetyDumpName = 'safetyDump.sql';
+  const remoteTempPath = '/tmp';
+  const remoteSafetyDumpPath = `${remoteTempPath}/${safetyDumpName}`;
+  const remoteCopyPath = `${remoteTempPath}/${tempCopyName}`;
+
+  const connection = new Ssh(config);
+  if (!connection) {
+    store.dispatch('setNotification', {
+      message: `Problème de connexion à la base de données`,
+      type: NotificationType.ERROR,
     });
+    return;
+  }
+
+  // ask for saved database destination
+  const dbToRestore = browseForDbToRestore();
+
+  if (!dbToRestore) {
+    return store.dispatch('setNotification', {
+      message: 'Opération annulée',
+      type: NotificationType.INFO,
+    });
+  }
+
+  // upload the database to restore
+  await connection.uploadFile(dbToRestore[0], remoteCopyPath);
+
+  // create a safety dump on remote
+  const dumpDatabase = `mysqldump -u ${dbUsername} -p${dbPassword} ${dbName} > ${remoteSafetyDumpPath}`;
+  await connection.exec(dumpDatabase);
+
+  // retore database
+  const retoreDatabase = `mysql -u ${dbUsername} -p${dbPassword} ${dbName} < ${remoteCopyPath}`;
+  await connection.exec(retoreDatabase);
+
+  // remove temporary remote copy
+  const removeDump = `rm ${remoteCopyPath}`;
+  connection.exec(removeDump);
+
+  // success notification
+  store.dispatch('setNotification', {
+    message: 'Opération terminée avec succès',
+    type: NotificationType.SUCCESS,
+  });
 };
