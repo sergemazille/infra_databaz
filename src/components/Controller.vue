@@ -1,6 +1,6 @@
 <template>
   <div>
-    <button data-selector="createButton" type="button" @click="createConfig">Créer une configuration</button>
+    <button class="action harmless" data-selector="createButton" type="button" @click="createConfig">+ Créer une configuration</button>
 
     <ul class="configs">
       <li :key="config.uuid" v-for="config in configs" class="config">
@@ -157,5 +157,11 @@ button {
   .config {
     margin-right: 12px;
   }
+}
+
+[data-selector='createButton'] {
+  position: absolute;
+  top: 15px;
+  right: 15px;
 }
 </style>

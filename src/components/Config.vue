@@ -36,7 +36,9 @@ export default {
 <style lang="scss" scoped>
 .config {
   padding: 18px;
-  border: 1px solid black;
+  border: 1px solid lightgrey;
+  border-radius: 5px;
+  color: grey;
   cursor: pointer;
   position: relative;
   width: 100px;
@@ -46,10 +48,15 @@ export default {
   justify-content: center;
   overflow: hidden;
   transition: transform 0.07s ease-in-out;
+
+  &:hover {
+    background-color: #dcdfec;
+  }
 }
 
-.isSelected {
-  background-color: #3b9646;
+.isSelected,
+.isSelected:hover {
+  background-color: #94a4db;
   color: white;
   border-color: #022b07;
   transform: translate3d(-2px, -2px, 0);
@@ -57,6 +64,11 @@ export default {
 
   button {
     color: white;
+
+    &:hover {
+      background-color: #fa8e22;
+      color: black;
+    }
   }
 }
 
@@ -65,6 +77,7 @@ button {
   background-color: transparent;
   border-radius: 50%;
   border: 1px solid currentColor;
+  color: grey;
   width: 24px;
   height: 24px;
   display: flex;
@@ -75,7 +88,7 @@ button {
   right: 6px;
 
   &:hover {
-    background-color: lightgrey;
+    background-color: #fa8e22;
     color: black;
   }
 }

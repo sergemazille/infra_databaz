@@ -2,6 +2,8 @@
   <form @submit.prevent>
     <div class="inputs">
       <fieldset>
+        <legend>Serveur</legend>
+
         <label>
           <span>Nom de la configuration</span>
           <input data-selector="name" type="text" placeholder="Serveur de mon app" :value="config.name" @input="handleUpdateConfig" />
@@ -49,12 +51,14 @@
               :value="config.sshPrivateKeyPath"
               @input="handleUpdateConfig"
             />
-            <button data-selector="sshKeyBrowseButton" type="button" @click.prevent="selectKeyPath">Parcourir</button>
+            <button class="action" data-selector="sshKeyBrowseButton" type="button" @click.prevent="selectKeyPath">Parcourir</button>
           </div>
         </label>
       </fieldset>
 
       <fieldset>
+        <legend>Base de données</legend>
+
         <label>
           <span>Port de la base de données</span>
           <input data-selector="dbPort" type="text" placeholder="3306" :value="config.dbPort" @input="handleUpdateConfig" />
@@ -89,23 +93,31 @@
     </div>
 
     <div class="config-actions">
-      <button data-selector="saveConfigButton" type="button" :disabled="isPristine" @click="handleSaveConfig">
-        Sauvegarder la configuration
+      <button class="action harmless" data-selector="saveConfigButton" type="button" :disabled="isPristine" @click="handleSaveConfig">
+        <span class="icon"><Save /></span>
+        <span>Sauvegarder la configuration</span>
       </button>
-      <button data-selector="deleteConfigButton" type="button" @click="handleDeleteConfig">
+      <button class="action warning" data-selector="deleteConfigButton" type="button" @click="handleDeleteConfig">
         Supprimer la configuration
       </button>
     </div>
 
-    <button data-selector="saveDbButton" type="button" :disabled="!isFormValid" @click="handleSaveDb">
-      Sauvegarder la base de données
-    </button>
-    <button data-selector="restoreDbButton" type="button" :disabled="!isFormValid" @click="handleRestoreDb">
-      Restaurer la base de données
-    </button>
-    <button data-selector="rollbackButton" type="button" v-if="showRollbackButton" @click="handleRollback">
-      Rollback
-    </button>
+    <div class="database-action">
+      <button class="action" data-selector="saveDbButton" type="button" :disabled="!isFormValid" @click="handleSaveDb">
+        <span class="icon"><Download /></span>
+        <span>Sauvegarder la base de données</span>
+      </button>
+      <div class="restore">
+        <button class="action" data-selector="restoreDbButton" type="button" :disabled="!isFormValid" @click="handleRestoreDb">
+          <span class="icon"><Upload /></span>
+          <span>Restaurer la base de données</span>
+        </button>
+        <button class="action" data-selector="rollbackButton" type="button" v-if="showRollbackButton" @click="handleRollback">
+          <span class="icon"><Rollback /></span>
+          <span class="icon">Rollback</span>
+        </button>
+      </div>
+    </div>
   </form>
 </template>
 
@@ -113,10 +125,18 @@
 import { Config } from '@/domain/Config.ts';
 import Eye from '@/icons/Eye.svg.vue';
 import { browseForSshPrivateKey } from '@/utils/system';
+import Download from '@/icons/download.svg.vue';
+import Upload from '@/icons/upload.svg.vue';
+import Save from '@/icons/save.svg.vue';
+import Rollback from '@/icons/rollback.svg.vue';
 
 export default {
   components: {
+    Download,
     Eye,
+    Rollback,
+    Save,
+    Upload,
   },
 
   props: {
@@ -203,47 +223,115 @@ export default {
 .inputs {
   display: flex;
   justify-content: space-evenly;
-}
-
-label {
-  display: flex;
-  flex-direction: column;
   margin-bottom: 12px;
-  align-items: flex-start;
 
-  span {
-    margin-bottom: 6px;
+  label {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 12px;
+    align-items: flex-start;
 
-    &.required::after {
-      content: '*';
-      color: red;
+    span {
+      margin-bottom: 6px;
+
+      &.required::after {
+        content: '*';
+        color: red;
+      }
+    }
+
+    .input-group {
+      display: flex;
+      align-items: center;
+
+      input {
+        margin-right: 6px;
+      }
+
+      .icon {
+        cursor: pointer;
+        color: lightgrey;
+
+        &.isActive {
+          color: black;
+        }
+      }
+    }
+
+    &.indented {
+      margin-left: 18px;
     }
   }
 
-  .input-group {
+  fieldset {
+    legend {
+      font-family: 'Kaushan Regular';
+      font-size: 1.4rem;
+      margin-bottom: 18px;
+    }
+
+    & > div {
+      margin-left: 18px;
+      margin-bottom: 12px;
+    }
+  }
+}
+
+.config-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 30px;
+
+  button {
+    padding: 12px 15px 8px;
     display: flex;
     align-items: center;
 
-    input {
+    .icon {
       margin-right: 6px;
+
+      svg {
+        width: 18px;
+        height: 18px;
+      }
     }
 
-    .icon {
-      color: lightgrey;
+    &:last-child {
+      margin-left: 12px;
+    }
+  }
+}
 
-      &.isActive {
-        color: black;
+.database-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  button {
+    padding: 15px 15px 5px;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: flex-start;
+
+    .icon {
+      margin-right: 6px;
+
+      svg {
+        width: 24px;
+        height: 24px;
       }
     }
   }
 
-  &.indented {
-    margin-left: 18px;
-  }
-}
+  .restore {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-end;
 
-fieldset > div {
-  margin-left: 18px;
-  margin-bottom: 12px;
+    button {
+      margin-bottom: 6px;
+    }
+  }
 }
 </style>

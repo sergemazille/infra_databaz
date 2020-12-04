@@ -4,7 +4,7 @@ import store from './store';
 
 // global style
 import './style/reset.css';
-import './style/common.scss';
+import './style/main.scss';
 
 // initialize configs
 store.dispatch('loadConfigs');

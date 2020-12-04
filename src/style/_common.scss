@@ -1,0 +1,61 @@
+body {
+  padding: 24px;
+}
+
+h1 {
+  font-family: 'Kaushan Regular';
+  font-weight: bold;
+  font-size: 2.4rem;
+  margin-bottom: 24px;
+}
+
+h2 {
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-bottom: 18px;
+}
+
+button.action {
+  border-radius: 5px;
+  border: none;
+  background-color: lightgrey;
+  padding: 10px 15px;
+  box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+
+  &:hover {
+    background-color: grey;
+    color: white;
+  }
+
+  &.harmless {
+    background-color: rgb(172, 196, 170);
+    color: white;
+
+    &:hover {
+      background-color: rgb(71, 160, 79);
+    }
+  }
+
+  &.warning {
+    background-color: #e0c1a3;
+    color: white;
+
+    &:hover {
+      background-color: #fa8e22;
+    }
+  }
+
+  &[disabled],
+  &[disabled]:hover {
+    background-color: rgb(226, 226, 226);
+    color: grey;
+    cursor: not-allowed;
+  }
+}
+
+input {
+  border-radius: 5px;
+  border: 1px solid grey;
+  padding: 10px 8px;
+}
