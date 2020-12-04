@@ -11,50 +11,15 @@ export class Ssh {
   }
 
   public exec(command: string) {
-    return new Promise((resolve, reject) => {
-      ssh
-        .connect(this.getConnectionConfig())
-        .then(() => {
-          ssh.execCommand(command);
-          return resolve();
-        })
-        .catch((error: any) => {
-          return reject(error);
-        });
-    });
+    return ssh.connect(this.getConnectionConfig()).then(() => ssh.execCommand(command));
   }
 
   public downloadFile(sourcePath: string, destinationPath: string) {
-    return new Promise((resolve, reject) => {
-      ssh
-        .connect(this.getConnectionConfig())
-        .then(() => {
-          // ! params order is not intuitive
-          ssh.getFile(destinationPath, sourcePath);
-          return resolve();
-        })
-        .catch((error: any) => {
-          return reject(error);
-        });
-    });
+    return ssh.connect(this.getConnectionConfig()).then(() => ssh.getFile(destinationPath, sourcePath));
   }
 
   public uploadFile(sourcePath: string, destinationPath: string) {
-    return new Promise((resolve, reject) => {
-      ssh
-        .connect(this.getConnectionConfig())
-        .then(() => {
-          ssh.putFile(sourcePath, destinationPath);
-          return resolve();
-        })
-        .catch((error: any) => {
-          return reject(error);
-        });
-    });
-  }
-
-  private validateConfig() {
-    // @todo
+    return ssh.connect(this.getConnectionConfig()).then(() => ssh.putFile(sourcePath, destinationPath));
   }
 
   private getConnectionConfig() {

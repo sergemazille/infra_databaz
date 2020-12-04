@@ -63,13 +63,6 @@ export const saveDb = async (config: Config) => {
   const remoteCopyPath = `${remoteTempPath}/${dumpName}`;
 
   const connection = new Ssh(config);
-  if (!connection) {
-    store.dispatch('setNotification', {
-      message: `Problème de connexion à la base de données`,
-      type: NotificationType.ERROR,
-    });
-    return;
-  }
 
   // ask for saved database destination
   const destination = browseForDbDestination();
@@ -83,14 +76,35 @@ export const saveDb = async (config: Config) => {
 
   // create a dump on remote
   const dumpDatabase = `mysqldump -u ${dbUsername} -p${dbPassword} ${dbName} > ${remoteCopyPath}`;
-  await connection.exec(dumpDatabase);
+  try {
+    await connection.exec(dumpDatabase);
+  } catch (error) {
+    return store.dispatch('setNotification', {
+      message: `Erreur lors de la connexion à la base de données: ${error}`,
+      type: NotificationType.ERROR,
+    });
+  }
 
   // download the database
-  await connection.downloadFile(remoteCopyPath, destination);
+  try {
+    await connection.downloadFile(remoteCopyPath, destination);
+  } catch (error) {
+    return store.dispatch('setNotification', {
+      message: `Erreur lors de la récupération de la base de données: ${error}`,
+      type: NotificationType.ERROR,
+    });
+  }
 
   // remove remote dump
   const removeDump = `rm ${remoteCopyPath}`;
-  connection.exec(removeDump);
+  try {
+    await connection.exec(removeDump);
+  } catch (error) {
+    return store.dispatch('setNotification', {
+      message: `Erreur lors du nettoyage du dump généré : ${error}`,
+      type: NotificationType.ERROR,
+    });
+  }
 
   // success notification
   store.dispatch('setNotification', {
@@ -108,13 +122,6 @@ export const restoreDb = async (config: Config) => {
   const remoteCopyPath = `${remoteTempPath}/${tempCopyName}`;
 
   const connection = new Ssh(config);
-  if (!connection) {
-    store.dispatch('setNotification', {
-      message: `Problème de connexion à la base de données`,
-      type: NotificationType.ERROR,
-    });
-    return;
-  }
 
   // ask for saved database destination
   const dbToRestore = browseForDbToRestore();
@@ -127,19 +134,47 @@ export const restoreDb = async (config: Config) => {
   }
 
   // upload the database to restore
-  await connection.uploadFile(dbToRestore[0], remoteCopyPath);
+  try {
+    await connection.uploadFile(dbToRestore[0], remoteCopyPath);
+  } catch (error) {
+    return store.dispatch('setNotification', {
+      message: `Erreur lors de l'upload du fichier' : ${error}`,
+      type: NotificationType.ERROR,
+    });
+  }
 
   // create a safety dump on remote
   const dumpDatabase = `mysqldump -u ${dbUsername} -p${dbPassword} ${dbName} > ${remoteSafetyDumpPath}`;
-  await connection.exec(dumpDatabase);
+  try {
+    await connection.exec(dumpDatabase);
+  } catch (error) {
+    return store.dispatch('setNotification', {
+      message: `Erreur lors de la connexion à la base de données: ${error}`,
+      type: NotificationType.ERROR,
+    });
+  }
 
   // retore database
   const retoreDatabase = `mysql -u ${dbUsername} -p${dbPassword} ${dbName} < ${remoteCopyPath}`;
-  await connection.exec(retoreDatabase);
+  try {
+    await connection.exec(retoreDatabase);
+  } catch (error) {
+    return store.dispatch('setNotification', {
+      message: `Erreur lors de la restauration de la base de données: ${error}`,
+      type: NotificationType.ERROR,
+    });
+  }
 
   // remove temporary remote copy
   const removeDump = `rm ${remoteCopyPath}`;
-  connection.exec(removeDump);
+  try {
+    connection.exec(removeDump);
+  } catch (error) {
+    return store.dispatch('setNotification', {
+      message: `Erreur lors du nettoyage du fichier uploadé sur le serveur : ${error}`,
+      type: NotificationType.ERROR,
+    });
+  }
 
   // success notification
   store.dispatch('setNotification', {
