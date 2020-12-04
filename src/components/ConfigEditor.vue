@@ -103,7 +103,7 @@
     <button data-selector="restoreDbButton" type="button" :disabled="!isFormValid" @click="handleRestoreDb">
       Restaurer la base de données
     </button>
-    <button data-selector="rollbackButton" type="button" v-if="hasBeenRestored" @click="handleRollback">
+    <button data-selector="rollbackButton" type="button" v-if="showRollbackButton" @click="handleRollback">
       Rollback
     </button>
   </form>
@@ -143,7 +143,7 @@ export default {
     return {
       isServerPasswordVisible: false,
       isDbPasswordVisible: false,
-      hasBeenRestored: false,
+      showRollbackButton: false,
     };
   },
 
@@ -181,7 +181,7 @@ export default {
     },
 
     handleRestoreDb() {
-      this.hasBeenRestored = true;
+      this.showRollbackButton = true;
       this.$emit('restoredb');
     },
 

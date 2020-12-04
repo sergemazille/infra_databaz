@@ -154,7 +154,7 @@ describe('ConfigEditor', () => {
 
     const props = { config: createFixtureConfig() };
     const wrapper = createWrapper({ props });
-    wrapper.setData({ hasBeenRestored: true });
+    wrapper.setData({ showRollbackButton: true });
     await wrapper.vm.$nextTick();
     wrapper.find('[data-selector="rollbackButton"]').trigger('click');
 
