@@ -97,9 +97,14 @@
       </button>
     </div>
 
-    <button data-selector="saveDbButton" type="button" :disabled="!canSubmit" @click="handleSaveDb">Sauvegarder la base de données</button>
-    <button data-selector="restoreDbButton" type="button" :disabled="!canSubmit" @click="handleRestoreDb">
+    <button data-selector="saveDbButton" type="button" :disabled="!isFormValid" @click="handleSaveDb">
+      Sauvegarder la base de données
+    </button>
+    <button data-selector="restoreDbButton" type="button" :disabled="!isFormValid" @click="handleRestoreDb">
       Restaurer la base de données
+    </button>
+    <button data-selector="rollbackButton" type="button" v-if="hasBeenRestored" @click="handleRollback">
+      Rollback
     </button>
   </form>
 </template>
@@ -127,7 +132,7 @@ export default {
   },
 
   computed: {
-    canSubmit() {
+    isFormValid() {
       const { serverIp, dbName } = this.config;
 
       return !!(serverIp && dbName);
@@ -138,6 +143,7 @@ export default {
     return {
       isServerPasswordVisible: false,
       isDbPasswordVisible: false,
+      hasBeenRestored: false,
     };
   },
 
@@ -175,7 +181,12 @@ export default {
     },
 
     handleRestoreDb() {
+      this.hasBeenRestored = true;
       this.$emit('restoredb');
+    },
+
+    handleRollback() {
+      this.$emit('rollback');
     },
   },
 

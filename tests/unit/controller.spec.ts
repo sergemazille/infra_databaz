@@ -1,17 +1,18 @@
 import * as configUtils from '@/utils/configs';
+import { createFixtureConfig, refFixtureConfig } from '@/utils/configs';
+import { restoreDb, rollback, saveDb } from '@/utils/system.ts';
 import ConfigComponent from '@/components/Config.vue';
 import ConfigEditor from '@/components/ConfigEditor.vue';
 import Controller from '@/components/Controller.vue';
-import { createFixtureConfig, refFixtureConfig } from '@/utils/configs';
 import { shallowMount } from '@vue/test-utils';
 import store from '@/store/index';
-import { restoreDb, saveDb } from '@/utils/system.ts';
 
 jest.mock('@/utils/system.ts', () => {
   return {
     browseForSshPrivateKey: jest.fn(),
     saveDb: jest.fn(),
     restoreDb: jest.fn(),
+    rollback: jest.fn(),
   };
 });
 
@@ -228,5 +229,18 @@ describe('Controller', () => {
 
     expect(restoreDb).toHaveBeenCalledTimes(1);
     expect(restoreDb).toHaveBeenCalledWith(selectedConfig);
+  });
+
+  it('should call system method to rollback with selected config', async () => {
+    const wrapper = createWrapper();
+    const selectedConfig = createFixtureConfig({ uuid: '12345' });
+    store.commit('storeConfigs', [selectedConfig]);
+    store.commit('storeSelectedConfigUuid', '12345');
+    await wrapper.vm.$nextTick();
+    const editorWrapper = wrapper.findComponent(ConfigEditor);
+    editorWrapper.trigger('rollback');
+
+    expect(rollback).toHaveBeenCalledTimes(1);
+    expect(rollback).toHaveBeenCalledWith(selectedConfig);
   });
 });

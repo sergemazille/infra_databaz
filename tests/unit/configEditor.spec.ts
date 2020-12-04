@@ -1,3 +1,4 @@
+import '@testing-library/jest-dom';
 import ConfigEditor from '@/components/ConfigEditor.vue';
 import { createFixtureConfig } from '@/utils/configs';
 import { shallowMount } from '@vue/test-utils';
@@ -87,7 +88,7 @@ describe('ConfigEditor', () => {
     ]);
   });
 
-  it('should disable "update config" button when config is pristine', async () => {
+  it('should disable "update config" button when config is pristine', () => {
     const props = { config: createFixtureConfig() };
     const wrapper = createWrapper({ props });
     const saveConfigButtonEl = wrapper.find('[data-selector="saveConfigButton"]').element as HTMLButtonElement;
@@ -95,7 +96,7 @@ describe('ConfigEditor', () => {
     expect(saveConfigButtonEl.disabled).toBeTruthy();
   });
 
-  it('should enable "update config" button when config is dirty', async () => {
+  it('should enable "update config" button when config is dirty', () => {
     const props = { config: createFixtureConfig(), isPristine: false };
     const wrapper = createWrapper({ props });
     const saveConfigButtonEl = wrapper.find('[data-selector="saveConfigButton"]').element as HTMLButtonElement;
@@ -103,7 +104,18 @@ describe('ConfigEditor', () => {
     expect(saveConfigButtonEl.disabled).toBeFalsy();
   });
 
-  it('should emit an event when config is saved', async () => {
+  it('should not display rollback button as default', async () => {
+    expect.assertions(1);
+
+    const props = { config: createFixtureConfig() };
+    const wrapper = createWrapper({ props });
+    await wrapper.vm.$nextTick();
+    const rollbackButtonWrapper = wrapper.find('[data-selector="rollbackButton"]');
+
+    expect(rollbackButtonWrapper.exists()).toBeFalsy();
+  });
+
+  it('should emit an event when config is saved', () => {
     const props = { config: createFixtureConfig(), isPristine: false };
     const wrapper = createWrapper({ props });
     const saveConfigButtonWrapper = wrapper.find('[data-selector="saveConfigButton"]');
@@ -112,7 +124,7 @@ describe('ConfigEditor', () => {
     expect(wrapper.emitted('save')).toBeTruthy();
   });
 
-  it('should emit an event when config is deleted', async () => {
+  it('should emit an event when config is deleted', () => {
     const props = { config: createFixtureConfig() };
     const wrapper = createWrapper({ props });
     const deleteConfigButtonWrapper = wrapper.find('[data-selector="deleteConfigButton"]');
@@ -121,7 +133,7 @@ describe('ConfigEditor', () => {
     expect(wrapper.emitted('delete')).toBeTruthy();
   });
 
-  it('should emit an event when db has to be saved', async () => {
+  it('should emit an event when db has to be saved', () => {
     const props = { config: createFixtureConfig() };
     const wrapper = createWrapper({ props });
     wrapper.find('[data-selector="saveDbButton"]').trigger('click');
@@ -129,12 +141,24 @@ describe('ConfigEditor', () => {
     expect(wrapper.emitted('savedb')).toBeTruthy();
   });
 
-  it('should emit an event when db has to be restored', async () => {
+  it('should emit an event when db has to be restored', () => {
     const props = { config: createFixtureConfig() };
     const wrapper = createWrapper({ props });
     wrapper.find('[data-selector="restoreDbButton"]').trigger('click');
 
     expect(wrapper.emitted('restoredb')).toBeTruthy();
+  });
+
+  it('should emit an event when db has to be restored from emergency dump', async () => {
+    expect.assertions(1);
+
+    const props = { config: createFixtureConfig() };
+    const wrapper = createWrapper({ props });
+    wrapper.setData({ hasBeenRestored: true });
+    await wrapper.vm.$nextTick();
+    wrapper.find('[data-selector="rollbackButton"]').trigger('click');
+
+    expect(wrapper.emitted('rollback')).toBeTruthy();
   });
 
   it('should not display clear password as default', () => {

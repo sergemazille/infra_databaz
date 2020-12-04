@@ -16,6 +16,13 @@ const generateSqlFileNameFromDate = () => {
   return `${now}.sql`;
 };
 
+const displaySuccessNotification = () => {
+  store.dispatch('setNotification', {
+    message: 'Opération terminée avec succès',
+    type: NotificationType.SUCCESS,
+  });
+};
+
 export const browseForSshPrivateKey = () => {
   const defaultPath = path.join(userHomePath, '.ssh');
 
@@ -106,11 +113,8 @@ export const saveDb = async (config: Config) => {
     });
   }
 
-  // success notification
-  store.dispatch('setNotification', {
-    message: 'Opération terminée avec succès',
-    type: NotificationType.SUCCESS,
-  });
+  // notify
+  displaySuccessNotification();
 };
 
 export const restoreDb = async (config: Config) => {
@@ -176,9 +180,29 @@ export const restoreDb = async (config: Config) => {
     });
   }
 
-  // success notification
-  store.dispatch('setNotification', {
-    message: 'Opération terminée avec succès',
-    type: NotificationType.SUCCESS,
-  });
+  // notify
+  displaySuccessNotification();
+};
+
+export const rollback = async (config: Config) => {
+  const { dbName, dbUsername, dbPassword } = config;
+  const safetyDumpName = 'safetyDump.sql';
+  const remoteTempPath = '/tmp';
+  const remoteSafetyDumpPath = `${remoteTempPath}/${safetyDumpName}`;
+
+  const connection = new Ssh(config);
+
+  // retore database with safety dump
+  const retoreDatabase = `mysql -u ${dbUsername} -p${dbPassword} ${dbName} < ${remoteSafetyDumpPath}`;
+  try {
+    await connection.exec(retoreDatabase);
+  } catch (error) {
+    return store.dispatch('setNotification', {
+      message: `Erreur lors du rollback de la base de données: ${error}`,
+      type: NotificationType.ERROR,
+    });
+  }
+
+  // notify
+  displaySuccessNotification();
 };

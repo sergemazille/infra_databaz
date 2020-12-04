@@ -22,6 +22,7 @@
       @delete="deleteConfig(selectedConfig.uuid)"
       @savedb="saveDbWithSelectedConfig"
       @restoredb="restoreDbWithSelectedConfig"
+      @rollback="rollbackWithSelectedConfig"
     />
   </div>
 </template>
@@ -34,7 +35,7 @@ import { mapGetters } from 'vuex';
 import { isEqual } from 'lodash';
 import { createEmptyConfig } from '@/utils/configs.ts';
 import { recoverConfigByUuid } from '@/utils/localstorage.ts';
-import { restoreDb, saveDb } from '@/utils/system.ts';
+import { restoreDb, rollback, saveDb } from '@/utils/system.ts';
 
 export default {
   components: {
@@ -114,6 +115,14 @@ export default {
       }
 
       restoreDb(this.selectedConfig);
+    },
+
+    rollbackWithSelectedConfig() {
+      if (!this.selectedConfig) {
+        return;
+      }
+
+      rollback(this.selectedConfig);
     },
   },
 
