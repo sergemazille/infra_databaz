@@ -16,42 +16,46 @@ h2 {
   margin-bottom: 18px;
 }
 
-button.action {
-  border-radius: 5px;
-  border: none;
-  background-color: lightgrey;
-  padding: 10px 15px;
-  box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
+button {
+  outline: none;
 
-  &:hover {
-    background-color: grey;
-    color: white;
-  }
-
-  &.harmless {
-    background-color: #bad4b8;
-    color: white;
+  &.action {
+    border-radius: 5px;
+    border: none;
+    background-color: lightgrey;
+    padding: 10px 15px;
+    box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
 
     &:hover {
-      background-color: #76d16e;
+      background-color: grey;
+      color: white;
     }
-  }
 
-  &.warning {
-    background-color: #e0c1a3;
-    color: white;
+    &.harmless {
+      background-color: #bad4b8;
+      color: white;
 
-    &:hover {
-      background-color: #fa8e22;
+      &:hover {
+        background-color: #76d16e;
+      }
     }
-  }
 
-  &[disabled],
-  &[disabled]:hover {
-    background-color: rgb(226, 226, 226);
-    color: grey;
-    cursor: not-allowed;
+    &.warning {
+      background-color: #e0c1a3;
+      color: white;
+
+      &:hover {
+        background-color: #fa8e22;
+      }
+    }
+
+    &[disabled],
+    &[disabled]:hover {
+      background-color: rgb(226, 226, 226);
+      color: grey;
+      cursor: not-allowed;
+    }
   }
 }
 
