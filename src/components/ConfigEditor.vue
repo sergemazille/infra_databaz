@@ -107,7 +107,7 @@
 <script>
 import { Config } from '@/domain/Config.ts';
 import Eye from '@/icons/Eye.svg.vue';
-import { browseForSshPrivateKeyPath } from '@/utils/system';
+import { browseForSshPrivateKey } from '@/utils/system';
 
 export default {
   components: {
@@ -151,7 +151,7 @@ export default {
     },
 
     selectKeyPath() {
-      const keyPath = browseForSshPrivateKeyPath();
+      const keyPath = browseForSshPrivateKey();
 
       this.$emit('update', { sshPrivateKeyPath: keyPath });
     },

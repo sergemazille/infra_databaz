@@ -4,7 +4,7 @@ import { shallowMount } from '@vue/test-utils';
 
 jest.mock('@/utils/system.ts', () => {
   return {
-    browseForSshPrivateKeyPath: jest.fn().mockReturnValue('/id_rsa'),
+    browseForSshPrivateKey: jest.fn().mockReturnValue('/id_rsa'),
   };
 });
 

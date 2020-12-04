@@ -9,7 +9,7 @@ import { restoreDb, saveDb } from '@/utils/system.ts';
 
 jest.mock('@/utils/system.ts', () => {
   return {
-    browseForSshPrivateKeyPath: jest.fn(),
+    browseForSshPrivateKey: jest.fn(),
     saveDb: jest.fn(),
     restoreDb: jest.fn(),
   };
