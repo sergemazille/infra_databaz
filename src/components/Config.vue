@@ -42,12 +42,13 @@ export default {
   cursor: pointer;
   position: relative;
   width: 100px;
-  height: 50px;
+  height: 25px;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   transition: transform 0.07s ease-in-out;
+  user-select: none;
 
   &:hover {
     background-color: #dcdfec;
@@ -60,7 +61,7 @@ export default {
   color: white;
   border-color: #022b07;
   transform: translate3d(-2px, -2px, 0);
-  box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.4);
+  box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.2);
 
   button {
     color: white;

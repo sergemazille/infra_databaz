@@ -1,6 +1,9 @@
 <template>
   <div id="app">
-    <Notification v-if="notification" v-bind="{ notification }" />
+    <transition name="fade">
+      <Notification v-if="notification" v-bind="{ notification }" />
+    </transition>
+
     <h1>DataBaZ</h1>
     <Controller v-bind="{ configs }" />
   </div>
@@ -22,3 +25,15 @@ export default {
   },
 };
 </script>
+
+<style lang="scss" scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 1s;
+}
+
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

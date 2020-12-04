@@ -1,5 +1,6 @@
 body {
   padding: 24px;
+  background-color: white;
 }
 
 h1 {
@@ -29,11 +30,11 @@ button.action {
   }
 
   &.harmless {
-    background-color: rgb(172, 196, 170);
+    background-color: #bad4b8;
     color: white;
 
     &:hover {
-      background-color: rgb(71, 160, 79);
+      background-color: #76d16e;
     }
   }
 
@@ -57,5 +58,5 @@ button.action {
 input {
   border-radius: 5px;
   border: 1px solid grey;
-  padding: 10px 8px;
+  padding: 8px 6px;
 }

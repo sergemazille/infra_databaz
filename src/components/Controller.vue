@@ -146,22 +146,19 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-button {
-  margin-bottom: 12px;
-}
-
 .configs {
   display: flex;
-  margin-bottom: 24px;
+  margin-bottom: 18px;
 
   .config {
     margin-right: 12px;
   }
 }
 
-[data-selector='createButton'] {
+button.action {
   position: absolute;
-  top: 15px;
-  right: 15px;
+  top: 25px;
+  right: 25px;
+  padding: 12px 25px;
 }
 </style>
