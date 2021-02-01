@@ -2,6 +2,8 @@
 
 Utilitaire de sauvegarde et d'upload de bases de données MySql/MariaDB.
 
+![screenshot](Databaz.jpg)
+
 ## Installation
 
 ```
